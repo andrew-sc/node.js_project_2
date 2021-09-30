@@ -61,13 +61,20 @@ router.post("/auth", async (req, res) => {
 
     const token = jwt.sign({ userId: user.userId}, "seceretKey");
     res.send({
-        token
+        token,
     });
 });
 
 router.get("/users/me", authMiddleware, async (req,res) => {  // /user/me 의 경로로 들어오는 경우만 <<<여기 라우터가 작동한다.
-    console.log(res.locals);
-    res.status(400).send({});
+    const { user } = res.locals;
+    console.log(user);
+
+    res.send({
+        user: { // 그냥 user만 보내면 pw가 노출 되기 때문에 user에서도 이메일과 패스워드만 뽑아서 보내준다.
+            email: user.email,
+            nickname: user.nickname,
+        }
+    });
 })
 
 
