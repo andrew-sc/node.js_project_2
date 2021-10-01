@@ -1,7 +1,8 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const { Op } = require("sequelize");
 const jwt = require("jsonwebtoken");
-const User = require("./models/user"); //user모델 참조
+const { User } = require("./models"); //user모델 참조 >> MySQL실행 후에는 인덱스에서 불러온다, 인덱스는 생략가능
 const Goods = require("./models/goods");
 const Cart = require("./models/cart");
 const authMiddleware = require("./middlewares/auth-middleware");
@@ -18,10 +19,6 @@ db.on("error", console.error.bind(console, "connection error:"));
 const app = express();
 const router = express.Router();
 
-app.use("/api", express.urlencoded({ extended: false }), router);
-app.use(express.static("assets"));
-
-
 // 회원가입시 검증을 위한 joi의 스케마 설정
 const postUserSchema = Joi.object().keys({
     nickname: Joi.string().min(2).required(),
@@ -31,38 +28,31 @@ const postUserSchema = Joi.object().keys({
 
 // 회원가입
 router.post("/users", async (req,res) => {
-    try{
-        const { nickname, email, password, confirmPassword } = await postUserSchema.validateAsync(req.body);
 
-        if (password !== confirmPassword) {
-            res.status(400).send({
-                errorMessage: '패스워드가 패스워드 확인란과 동일하지 않습니다.'
-            });
-            return; // 이후의 코드는 실행시키지 않기 위한 리턴
-        }
+    const { nickname, email, password, confirmPassword } = req.body;
 
-        const existUsers = await User.find({
-            $or: [{ email }, { nickname }]
-        });
-        if (existUsers.length) {
-            res.status(400).send({
-                errorMessage: '이미 가입된 이메일 또는 닉네임이 있습니다.'
-            });
-            return;
-        }
-
-        const user = new User({ email, nickname, password });
-        await user.save();
-
-        res.status(201).send({}); // 어떠한 유저가 저장된 내용으로 restFUL 관점에서 201의 상태가 적합하여 201을 status로 전송
-
-    } catch (err) {
-        console.log(err);
+    if (password !== confirmPassword) {
         res.status(400).send({
-            errorMessage: "요청한 데이터 형식이 올바르지 않습니다."
+            errorMessage: '패스워드가 패스워드 확인란과 동일하지 않습니다.'
         });
+        return; // 이후의 코드는 실행시키지 않기 위한 리턴
     }
-    
+
+    // 이메일과 닉네임의 중복확인
+    const existUsers = await User.findAll({
+        where: { //where 조건문 /  Op에서 찾아와라
+            [Op.or]: [{ nickname }, { email }], //둘중 하나라도 포함하면 가져와!
+        },
+    });
+    if (existUsers.length) {
+        res.status(400).send({
+            errorMessage: '이미 가입된 이메일 또는 닉네임이 있습니다.'
+        });
+        return;
+    }
+
+    await User.create({ email, nickname, password });
+    res.status(201).send({}); // 어떠한 유저가 저장된 내용으로 restFUL 관점에서 201의 상태가 적합하여 201을 status로 전송
 });
 
 
@@ -78,7 +68,7 @@ router.post("/auth", async (req, res) => {
     try{
         const { email, password } = await postAuthSchema.validateAsync(req.body);
 
-        const user = await User.findOne({ email, password }).exec();
+        const user = await User.findOne({ where: { email, password } });
 
         if (!user) {
             res.status(400).send({
@@ -208,6 +198,9 @@ router.get("/goods/:goodsId", authMiddleware, async (req, res) => {
     }
 });
 
+
+app.use("/api", express.urlencoded({ extended: false }), router);
+app.use(express.static("assets"));
 
 app.listen(8080, () => {
   console.log("서버가 요청을 받을 준비가 됐어요");

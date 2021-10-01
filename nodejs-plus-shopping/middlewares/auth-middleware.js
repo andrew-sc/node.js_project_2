@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const User = require("../models/user");
+const { User } = require("../models");
 
 module.exports = (req, res, next) => {
     const { authorization } = req.headers;
@@ -15,7 +15,8 @@ module.exports = (req, res, next) => {
     try {
         const { userId } = jwt.verify(tokenValue, "seceretKey")
         
-        User.findById(userId).exec().then((user) => { //저기 then은 어디서 나온 녀석인지 질문 필요!
+        User.findByPk(userId).then((user) => { //저기 then은 어디서 나온 녀석인지 질문 필요!
+            console.log("마이어떠미들웨어", user)
             res.locals.user = user; //locals는 데이터에서 사용자가 마음대로 사용할 수 있는 공간..
             next(); //위의 경우를 통과하는 상황에서만 next가 허용된다.
         });
@@ -25,7 +26,6 @@ module.exports = (req, res, next) => {
         });
         return;
     }
-
 };
 
 
