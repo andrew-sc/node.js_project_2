@@ -11,8 +11,40 @@ const http = Http.createServer(app);
 const io = socketIo(http);
 const router = express.Router();
 
+const socketIdMap = {};
+
+function emitSamePageViewerCount() {
+    const conuntByUrl = Object.values(socketIdMap).reduce((value, url) => { //오브젝트.벨류스 는 맵이 가진 ket:value 에서 벨류만 쫙 뽑아서 list로 만들어준다. reduce라는 함수는 1인자로 콜백함수, 2인자로 초기값이 들어간다. 1인자인 콜백함수에도 누적값, 현재값, 인덱스, 요소 의 순으로 인자가 들어 갈 수 있다.
+        return {
+            ...value,
+            [url]: value[url] ? value[url] + 1 : 1, //여기서 url은 socket.if로   
+        };
+    }, {}); 
+    
+    console.log(conuntByUrl);
+
+    for ( const [socketId, url] of Object.entries(socketIdMap)) {
+        const count = conuntByUrl[url];
+        io.to(socketId).emit("SAME_PAGE_VIEWER_COUNT", count);
+    };
+};
+
 io.on("connection", (socket) => {
+    socketIdMap[socket.id] = null;
     console.log("누군가 연결을 시도했어요!");
+
+    // 현재 들어와있는 소켓을의 수를 파악해서 새임페이지 뷰어 카운트에 보내줘야한다.
+    // socket.emit("SAME_PAGE_VIEWER_COUNT", 99); //emit 은 인자1 을 통해 연결되어있는 이벤트에게 인자2를 보내는 역할
+
+    //과제: Use 실시간 정보
+    // 1. 로그인 후 물품 상세페이지에 들어갔을 때, 나 이외의 다른 사용자에게 팝업띄우기
+    // 상세페이지 조회 > "CHANGED_PAGE" 라는 이벤트 발생 > 이벤트에 따른 data 확인 > data를 이용해서 상대방에게 보낼 정보 가공 > 가공된 정보를 띄워주는 작업 실행
+    socket.on("CHANGED_PAGE", (data) =>{
+        console.log("페이지가 바뀌었대요", data, socket.id);
+        socketIdMap[socket.id] = data; // 연결된 id와 data를 짝지어주는 것
+
+        emitSamePageViewerCount()
+    });
 
     socket.on("BUY", (data) => { //클라이언트에게서 오는 "BUY"라는 이벤트에 반응할 준비 완료
         const payload = {
@@ -27,7 +59,9 @@ io.on("connection", (socket) => {
         socket.broadcast.emit("BUY_GOODS", payload); // 나를 제외한 다른 소켓에 정보를 전달
 
     socket.on("dissconnect", () => {
+        delete socketIdMap[socket.id];
         console.log("누군가 연결을 끊었어요!")
+        emitSamePageViewerCount()
     });
 
   });
