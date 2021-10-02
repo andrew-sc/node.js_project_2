@@ -1,8 +1,49 @@
 const express = require("express");
+const Http = require("http");
+const socketIo = require("socket.io");
 const { Op } = require("sequelize");
 const jwt = require("jsonwebtoken");
 const { User, Goods, Cart } = require("./models"); //user모델 참조 >> MySQL실행 후에는 인덱스에서 불러온다, 인덱스는 생략가능
 const authMiddleware = require("./middlewares/auth-middleware");
+
+const app = express();
+const http = Http.createServer(app);
+const io = socketIo(http);
+const router = express.Router();
+
+io.on("connection", (socket) => {
+    console.log("누군가 연결을 시도했어요!");
+
+    socket.on("BUY", (data) => { //클라이언트에게서 오는 "BUY"라는 이벤트에 반응할 준비 완료
+        const payload = {
+            nickname: data.nickname,
+            goodsId: data.goodsId,
+            goodsName: data.goodsName,
+            date: new Date().toISOString(),
+        };
+        console.log("클라이언트가 구매한 데이터", data, new Date());
+
+        // io.emit("BUY_GOODS", payload); //소켓.io애서 구현해놓았기 때문에 io가 나오면 모든 소켓의 관리자쯤의 위치라 생각할 수 있다
+        socket.broadcast.emit("BUY_GOODS", payload); // 나를 제외한 다른 소켓에 정보를 전달
+
+    socket.on("dissconnect", () => {
+        console.log("누군가 연결을 끊었어요!")
+    });
+
+  });
+
+});
+
+
+io.on("connection", (socket) => {
+    console.log("새로운 소켓이 연결됐어요!");
+
+    socket.on("disconnect", () => {
+        console.log("연결이 끊어졌어요!");
+    });
+});
+
+
 
 const Joi = require("joi");
 // 회원가입시 검증을 위한 joi의 스케마 설정
@@ -11,10 +52,6 @@ const postUserSchema = Joi.object().keys({
     email: Joi.string().email().required(),
     password: Joi.string().min(2).required(),
 });
-
-const app = express();
-const router = express.Router();
-
 
 // 회원가입
 router.post("/users", async (req,res) => {
@@ -85,7 +122,7 @@ router.post("/auth", async (req, res) => {
 // 미들웨어를 거쳐서 암호화 된 정보를 클라이언트에 넘겨주는 것
 router.get("/users/me", authMiddleware, async (req,res) => {  // /user/me 의 경로로 들어오는 경우만 <<<여기 라우터가 작동한다.
     const { user } = res.locals;
-    console.log(user);
+    //console.log(user);
 
     res.send({
         user,
@@ -187,6 +224,6 @@ router.get("/goods/:goodsId", authMiddleware, async (req, res) => {
 app.use("/api", express.urlencoded({ extended: false }), router);
 app.use(express.static("assets"));
 
-app.listen(8080, () => {
+http.listen(8080, () => {
   console.log("서버가 요청을 받을 준비가 됐어요");
 });

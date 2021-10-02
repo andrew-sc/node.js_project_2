@@ -16,7 +16,7 @@ module.exports = (req, res, next) => {
         const { userId } = jwt.verify(tokenValue, "seceretKey")
         
         User.findByPk(userId).then((user) => { //저기 then은 어디서 나온 녀석인지 질문 필요!
-            console.log("마이어떠미들웨어", user)
+            // console.log("마이어떠미들웨어", user)
             res.locals.user = user; //locals는 데이터에서 사용자가 마음대로 사용할 수 있는 공간..
             next(); //위의 경우를 통과하는 상황에서만 next가 허용된다.
         });
