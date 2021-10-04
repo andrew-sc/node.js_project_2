@@ -7,7 +7,6 @@ const authMiddleware = require('./middlewares/auth-middleware');
 
 const app = express();
 const http = Http.createServer(app);
-
 const router = express.Router();
 
 const Joi = require('joi');
