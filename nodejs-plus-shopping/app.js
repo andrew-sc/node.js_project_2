@@ -1,6 +1,5 @@
 const express = require('express');
 const Http = require('http');
-const socketIo = require('socket.io');
 const { Op } = require('sequelize');
 const jwt = require('jsonwebtoken');
 const { User, Goods, Cart } = require('./models'); //user모델 참조 >> MySQL실행 후에는 인덱스에서 불러온다, 인덱스는 생략가능
@@ -8,107 +7,8 @@ const authMiddleware = require('./middlewares/auth-middleware');
 
 const app = express();
 const http = Http.createServer(app);
-const io = socketIo(http);
+
 const router = express.Router();
-
-const socketIdMap = {};
-
-function emitSamePageViewerCount() {
-  const conuntByUrl = Object.values(socketIdMap).reduce((value, url) => {
-    //오브젝트.벨류스 는 맵이 가진 ket:value 에서 벨류만 쫙 뽑아서 list로 만들어준다. reduce라는 함수는 1인자로 콜백함수, 2인자로 초기값이 들어간다. 1인자인 콜백함수에도 누적값, 현재값, 인덱스, 요소 의 순으로 인자가 들어 갈 수 있다.
-    return {
-      ...value,
-      [url]: value[url] ? value[url] + 1 : 1, //여기서 url은 socket.if로
-    };
-  }, {});
-
-  console.log(conuntByUrl);
-
-  for (const [socketId, url] of Object.entries(socketIdMap)) {
-    const count = conuntByUrl[url];
-    io.to(socketId).emit('SAME_PAGE_VIEWER_COUNT', count);
-  }
-}
-
-function initSocket(sock) {
-    console.log('새로운 소켓이 연결됐어요!')
-
-    // 특정 이벤트가 전달됐는지 감지할 때 사용될 함수
-    function watchEvent(event, func) {
-      sock.on(event, func);
-    }
-  
-    // 연결된 모든 클라이언트에 데이터를 보낼때 사용될 함수
-    function notifyEveryone(event, data) {
-      io.emit(event, data);
-    }
-  
-    return {
-      watchBuying: () => {
-        watchEvent('BUY', (data) => {
-          const emitData = {
-            ...data,
-            date: new Date().toISOString(),
-          };
-          notifyEveryone('BUY_GOODS', emitData);
-        });
-      },
-  
-      watchByebye: () => {
-        watchEvent('disconnect', () => {
-          console.log(sock.id, '연결이 끊어졌어요!');
-        });
-      },
-    };
-  }
-
-io.on('connection', (socket) => {
-  socketIdMap[socket.id] = null;
-  console.log('누군가 연결을 시도했어요!');
-
-  const { watchBuying, watchDisconnec} = initSocket(socket);
-
-  watchChngPage();
-  watchBuying();
-  watchDisconnec();
-
-});
-
-
-
-  socket.on('CHANGED_PAGE', (data) => {
-    console.log('페이지가 바뀌었대요', data, socket.id);
-    socketIdMap[socket.id] = data;
-
-    emitSamePageViewerCount();
-  });
-
-  socket.on('BUY', (data) => {
-    const payload = {
-      nickname: data.nickname,
-      goodsId: data.goodsId,
-      goodsName: data.goodsName,
-      date: new Date().toISOString(),
-    };
-    console.log('클라이언트가 구매한 데이터', data, new Date());
-
-    socket.broadcast.emit('BUY_GOODS', payload); // 나를 제외한 다른 소켓에 정보를 전달
-
-    socket.on('dissconnect', () => {
-      delete socketIdMap[socket.id];
-      console.log('누군가 연결을 끊었어요!');
-      emitSamePageViewerCount();
-    });
-  });
-});
-
-io.on('connection', (socket) => {
-  console.log('새로운 소켓이 연결됐어요!');
-
-  socket.on('disconnect', () => {
-    console.log('연결이 끊어졌어요!');
-  });
-});
 
 const Joi = require('joi');
 // 회원가입시 검증을 위한 joi의 스케마 설정
@@ -286,6 +186,5 @@ router.get('/goods/:goodsId', authMiddleware, async (req, res) => {
 app.use('/api', express.urlencoded({ extended: false }), router);
 app.use(express.static('assets'));
 
-http.listen(8080, () => {
-  console.log('서버가 요청을 받을 준비가 됐어요');
-});
+module.exports = http;
+// app.js를 requireg 하게 되면 http라는 객체를 가져올 수 있게된다
