@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+      <meta charset="UTF-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Main Page</title>
+
+      <!-- jQuery -->
+      <script src="https://code.jquery.com/jquery-3.5.1.js"
+        integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
+  </head>
+  <style>
+
+      .title {
+          cursor: pointer;
+      }
+
+  </style>
+  <script>
+      $(document).ready(function() {
+        get_all_posts()
+      })
+
+      function get_all_posts(){
+          $('#postlist').empty();
+
+          $.ajax({
+                type: "GET",
+                url: `/api/main`,
+                data: {},
+                success: function (response) {
+                    let posts = response["posts"]
+                    for (let i = 0; i < posts.length; i++) {
+                        make_card(posts[i]);
+                    }
+                }
+            });
+        }
+
+        function make_card(post) {
+            let dateY = post["postTime"].substr(0,4);
+            let dateM = post["postTime"].substr(4,2);
+            let dateD = post["postTime"].substr(6,2);
+            let dateMS = post["postTime"].substr(14,3);
+            console.log(dateY, dateM, dateD, dateMS);
+            let postingDate = dateY + "-" + dateM + "-" + dateD
+             
+            let htmlTemp = `<p></p>
+                            <a class="title" id="title" onclick="window.location.href='/post/detail?postTime=${post["postTime"]}'">
+                                title : ${post["title"]}
+                            </a>
+                            <p></p>
+                            <a id="writer">
+                                writer : ${post["writer"]}
+                            </a>
+                            <p></p>
+                            <a id="date">
+                                date : ${postingDate}
+                            </a>
+                            <p></p>
+                            <a>
+                                ---------------------------------------------------
+                            </a>`
+            $("#postlist").append(htmlTemp)
+        }
+
+
+  </script>
+  <body>
+      <h1>
+          This page is index_main page!
+      </h1>
+      <a>
+          ---------------------------------------------------
+      </a>
+      <div id="postlist">
+          <p></p>
+          <a id="title" class="title">
+              title : test title
+          </a>
+          <p></p>
+          <a id="writer">
+            writer : test writer
+          </a>
+          <p></p>
+          <a id="date">
+            date : test date
+          </a>
+          <p></p>
+          <a>
+            ---------------------------------------------------
+          </a>
+      </div>
+      <button onclick="window.location.href='/post'">
+          글 쓰 기
+      </button>
+  </body>
+</html>

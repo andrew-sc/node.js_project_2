@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+      <meta charset="UTF-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      
+      <!-- jQuery -->
+      <script src="https://code.jquery.com/jquery-3.5.1.js"
+        integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
+      
+      <title>Post Detail</title>
+  </head>
+  <script>
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+        const postTime = urlParams.get("postTime");
+
+        $(document).ready(function() {
+            detail_post();
+        });
+
+        function detail_post(){
+
+            $('#postDetail').empty();
+
+            $.ajax({
+                type: 'GET',
+                url: `/api/post/detail/${postTime}`,
+                data: {},
+                error: function(xhr, status, error) {
+                    if (status == 404) {
+                        alert("게시글 불러오기에 실패했습니다.");
+                    }
+                    window.location.herf="/main";
+                },
+                success: function(response) {
+                    let result = response["result"];
+                    let title = result["title"];
+                    let writer = result["writer"];
+                    let time = result["postTime"];
+                    let contents = result["contents"];
+
+                    let dateY = time.substr(0,4);
+                    let dateM = time.substr(4,2);
+                    let dateD = time.substr(6,2);
+                    let dateH = time.substr(8,2);
+                    let dateMi = time.substr(10,2);
+                    console.log(dateY, dateM, dateD, dateH, dateMi);
+                    let postingDate = dateY + "-" + dateM + "-" + dateD + " " + dateH + ":" + dateMi ;
+
+                    let temp_html = `<a id="title">
+                                        Title : ${title}
+                                    </a>
+                                    <p></p>
+                                    <a id="writer">
+                                        Writer : ${writer}
+                                    </a>
+                                    <p></p>
+                                    <a id="date">
+                                        Date : ${postingDate}
+                                    </a>
+                                    <p></p>
+                                    <label for="contents">
+                                        Contents
+                                    </label>
+                                    <p></p>
+                                    <textarea id="contents" style="height: 100px; width: 344px; font-size: larger;" readonly>${contents}</textarea>
+                                    <p></p>
+                                    <a>
+                                    ---------------------------------------------------
+                                    </a>`
+                    $('#postDetail').append(temp_html);
+                }
+            });
+        }
+
+        function go_edit() {
+            window.location.href='/post/edit?postTime='+ postTime;
+        }
+
+  </script>
+  <body>
+    <h1>
+        This page is Post Detail page!
+    </h1>
+    <a>
+        ---------------------------------------------------
+    </a>
+    <p></p>
+    <div id="postDetail">
+         <a id="title">
+             Title : test title
+         </a>
+         <p></p>
+         <a id="writer">
+             Writer : test writer
+         </a>
+         <p></p>
+         <a id="date">
+             Date : test date
+         </a>
+         <p></p>
+         <label for="contents">
+            Contents
+         </label>
+         <p></p>
+         <textarea id="contents" style="height: 100px; width: 344px; font-size: larger;" readonly></textarea>
+    </div>
+    <p></p>
+    <button onclick="go_edit()">
+        수 정 하 기
+    </button>
+    <p></p>
+    <button onclick="window.location.href='/main'">
+        처 음 으 로
+    </button>
+  </body>
+</html>

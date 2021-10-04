@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+      <meta charset="UTF-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      
+      <!-- jQuery -->
+      <script src="https://code.jquery.com/jquery-3.5.1.js"
+        integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
+      
+      <title>New Post</title>
+  </head>
+  <script>
+
+      function new_post(){
+          let title = $("#new_title").val();
+          let writer = $("#new_writer").val();
+          let pw = $("#new_pw").val();
+          let contents = $("#new_contents").val();
+          
+          //작성시간 입히기
+          let time = new Date();          
+
+          let timeYear = String(time.getFullYear()) //년
+
+          let timeMonth = "" //월
+          if (String(time.getMonth()+1).length == 1 ){ //월이 1자리 수일때 2자리로 표현
+              timeMonth = "0" + String(time.getMonth()+1)
+          } else {
+              timeMonth = String(time.getMonth()+1)
+          };
+
+          let timeDate = String(time.getDate()) //일
+          let timeHours = String(time.getHours()) //시
+          let timeMinutes = String(time.getMinutes()) //분
+
+          let timeSec =""; //초
+          if (String(time.getSeconds()).length < 2 ){ //초가 1자리 수일때 2자리로 표현
+              timeSec = "0" + String(time.getSeconds())
+          } else {
+              timeSec = String(time.getSeconds())
+          };
+
+          let timeMisec = ""; //밀리초
+          if (String(time.getMilliseconds()).length < 1 ){ //밀리초가 1자리 수일때 3자리로 표현
+              timeMisec = "00" + String(time.getMilliseconds())
+          } else if (String(time.getMilliseconds()).length == 2){ //밀리초가 2자리 수일때 3자리로 표현
+              timeMisec = "0" + String(time.getMilliseconds())
+          } else {
+              timeMisec = String(time.getMilliseconds())
+          }
+
+          let postTime = timeYear.concat(timeMonth,timeDate,timeHours,timeMinutes,timeSec,timeMisec); //문자열
+          // let intPostTime = Number(postTime); //숫자
+          console.log(postTime);
+
+
+
+          $.ajax({
+              type: "POST",
+              url: '/api/post/add',
+              data: {
+                title: title,
+                writer: writer,
+                pw: pw,
+                contents: contents,
+                postTime: postTime
+                },
+                success: function (response) {
+                    if (response["result"] == "success"){
+                        console.log("포스트 성공!");
+                        alert("등록에 성공하셨습니다!");
+                        window.location.href='/main';
+                    }
+                }
+            });
+        }
+
+
+  </script>
+  <body>
+      <h1>
+          This page is new post page!
+      </h1>
+      <a>
+        ---------------------------------------------------
+      </a>
+      <p></p>
+      <div id="newPost">
+          <div id="titleInput">
+             <label for="new_title">
+                제목을 입력해 주세요
+             </label>
+             <p></p>
+             <input type="text" id="new_title" style="height: 20px; width: 50%;" required>
+          </div>
+         <p></p>
+         <div id="writerInput">
+              <label for="new_writer">
+                 작성자를 입력해 주세요
+             </label>
+             <p></p>
+             <input type="text" id="new_writer" style="height: 20px; width: 50%;" required>
+          </div>
+          <p></p>
+         <div id="pwInput">
+               <label for="new_pw">
+                    비밀번호를 입력해 주세요
+                </label>
+               <p></p>
+               <input type="password" id="new_pw" style="height: 20px; width: 50%;" required>
+         </div>
+         <p></p>
+         <div id="contentsInput">
+             <label for="new_contents">
+                 내용을 입력해 주세요
+             </label>
+             <p></p>
+             <textarea id="new_contents" style="height: 100px; width: 50%;" required></textarea>
+          </div>        
+      </div>
+      <p></p>
+      <a>
+          ---------------------------------------------------
+      </a>
+      <p></p>
+      <button onclick="new_post()">
+            입 력 완 료
+      </button>
+      <p></p>
+      <button onclick="window.location.href='/main'">
+            처 음 으 로
+      </button>
+  </body>
+</html>

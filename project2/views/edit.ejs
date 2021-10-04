@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+      <meta charset="UTF-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      
+      <!-- jQuery -->
+      <script src="https://code.jquery.com/jquery-3.5.1.js"
+        integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
+      
+      <title>Edit Post</title>
+  </head>
+  <script>
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+        const postTime = urlParams.get("postTime");
+
+      $(document).ready(function(){
+        detail_post();
+      });
+
+
+
+      function detail_post(){
+
+        $('#targetPost').empty();
+
+        $.ajax({
+            type: 'GET',
+            url: `/api/post/detail/${postTime}`,
+            data: {},
+            error: function(xhr, status, error) {
+                if (status == 404) {
+                    alert("게시글 불러오기에 실패했습니다.");
+                }
+                window.location.herf="/main";
+            },
+            success: function(response) {
+                 let result = response["result"];
+                 let title = result["title"];
+                 let writer = result["writer"];
+                 let contents = result["contents"];
+                 let postTime_origin = result["postTime"];
+
+                 let temp_html = `<div id="titleInput">
+                                      <label for="target_title">
+                                          제목을 입력해 주세요
+                                      </label>
+                                      <p></p>
+                                      <input type="text" id="target_title" style="height: 20px; width: 50%;" value="${title}">
+                                  </div>
+                                  <p></p>
+                                  <div id="writerInput">
+                                      <label for="target_writer">
+                                          작성자를 입력해 주세요
+                                      </label>
+                                      <p></p>
+                                      <input type="text" id="target_writer" style="height: 20px; width: 50%;" value="${writer}">
+                                  </div>
+                                  <p></p>
+                                  <div id="pwInput">
+                                      <label for="target_pw">
+                                          비밀번호를 입력해 주세요
+                                      </label>
+                                      <p></p>
+                                      <input type="password" id="target_pw" style="height: 20px; width: 50%;" placeholder="작성시 입력한 비밀번호를 입력해주세요" required>
+                                  </div>
+                                  <p></p>
+                                  <div id="contentsInput">
+                                      <label for="target_contents">
+                                          내용을 입력해 주세요
+                                      </label>
+                                      <p></p>
+                                      <textarea id="target_contents" style="height: 100px; width: 50%;">${contents}</textarea>
+                                  </div>  
+                                  <input id="postTime_origin" value="${postTime_origin}" type="hidden">`
+                 $('#targetPost').append(temp_html);
+                }
+            });
+        }
+
+        function edit_post() {
+            let title_edited = $('#target_title').val();
+            let writer_edited = $('#target_writer').val();
+            let pw_edited = $('#target_pw').val();
+            let contents_edited = $('#target_contents').val();
+            let postTime_origin = $('#postTime_origin').val();
+            console.log(title_edited, writer_edited, pw_edited, contents_edited, postTime_origin);
+
+            $.ajax({
+                type: "PUT",
+                url: `/api/post/edit/save`,
+                data: {
+                    title_edited: title_edited,
+                    writer_edited: writer_edited,
+                    pw_edited: pw_edited,
+                    contents_edited: contents_edited,
+                    postTime: postTime_origin
+                },
+                error: function(xhr, status, error) {
+                    if (status == 404) {
+                    alert("페이지를 불러오지 못했습니다.");
+                    alert("메인 페이지로 돌아 갑니다.");
+                    window.location.herf="/main";
+                    }
+                },
+                success: function(response){
+                    if (response["result"] == "success"){
+                        console.log("포스트 수정 성공!");
+                        if(confirm("등록에 성공하셨습니다! 메인페이지로 돌아가시겠습니까?")){
+                            window.location.href='/main';
+                        } else {
+                            if(confirm("넵, 안돌아갑니다! 대신 새로고침?")){
+                                alert("넵! 새로고침 하겠습니다!");
+                                window.location.reload();
+                            } else {
+                                alert("엥 새로 안고치고 뭐 하실려구요..? 흠.. ")
+                            }
+                        }
+                    } else {
+                        console.log("포스트 수정을 실패했습니다..");
+                        alert("비밀 번호가 다릅니다. 다시 입력해주세요.");
+                    }
+                }
+            });
+        }
+
+        function delete_post() {
+            
+            let pw_edited = $('#target_pw').val();
+            console.log(pw_edited);
+
+            $.ajax({
+                type: "DELETE",
+                url: `/api/post/edit/delete/${postTime}`,
+                data: { 
+                    inPutPw : pw_edited
+                },
+                error: function(xhr, status, error) {
+                    if (status == 404) {
+                    alert("오류 발생 상세페이지로 돌아갑니다.");
+                    }
+                    window.location.herf="/post/detail?postTime="+ postTime;
+                },success: function(response){
+                    if (response["result"] == "success"){
+                        alert("삭제가 완료되었습니다.")
+                        window.location.href="/main"
+                    } else if (response["result"] == "fail") {
+                        alert("비밀 번호가 일치하지 않습니다. 다시 돌아갑니다.")
+                        window.location.href='/post/detail?postTime=' + postTime;
+                    }
+                }
+            })                       
+        }
+
+  </script>
+  <body>
+    <h1>
+        This page is new post page!
+    </h1>
+    <a>
+      ---------------------------------------------------
+    </a>
+    <p></p>
+    <div id="targetPost">
+      <div id="titleInput">
+          <label for="target_title">
+             제목을 입력해 주세요
+          </label>
+          <p></p>
+          <input type="text" id="target_title" style="height: 20px; width: 50%;">
+      </div>
+      <p></p>
+      <div id="writerInput">
+          <label for="target_writer">
+              작성자를 입력해 주세요
+          </label>
+          <p></p>
+          <input type="text" id="target_writer" style="height: 20px; width: 50%;">
+      </div>
+      <p></p>
+      <div id="pwInput">
+          <label for="target_pw">
+              비밀번호를 입력해 주세요
+          </label>
+          <p></p>
+          <input type="password" id="target_pw" style="height: 20px; width: 50%;">
+      </div>
+      <p></p>
+      <div id="contentsInput">
+          <label for="target_contents">
+              내용을 입력해 주세요
+          </label>
+          <p></p>
+          <textarea id="target_contents" style="height: 100px; width: 50%;"></textarea>
+      </div>     
+    </div>
+    
+    <p></p>
+    <a>
+        ---------------------------------------------------
+    </a>
+    
+    <div>
+        <p></p>
+        <button onclick="edit_post()">
+            수 정 완 료
+        </button>
+        <p></p>
+        <button onclick="delete_post()">
+            삭 제 하 기
+        </button>
+        <p></p>
+        <button onclick="window.location.href='/main'">
+            처 음 으 로
+        </button>
+</body>
+</html>
