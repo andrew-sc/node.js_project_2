@@ -21,21 +21,30 @@
 
   <script>
      function login() {
-       let id = $('#login_id').val();
+       let nickName = $('#login_nickName').val();
        let pw = $('#login_pw').val();
 
        $.ajax({
          type: "POST",
          url: `/api/users`,
-         data: {},
+         data: { nickName, pw },
          success: function (response) {
-           if(response.result === "failure") {
-             alert("닉네임 또는 페스워드를 확인해 주세요")
-             return;
+           if (response["result"] === "success") {
+             window.location.href='/main?nickname='+ nickName
+           } else if (response["result"] === "failure") {
+              alert(response["errorMessage"]);
+              return;
            }
-         }
-       })
-     }
+         },
+         error: function(error) { 
+          console.log(error);
+          alert(error.responseJSON.errorMessage);
+          return;
+        }
+      });
+     };
+
+     
 
 
   </script>
@@ -46,11 +55,11 @@
   <p></p>
   <div id="login">
       <div id="id">
-         <label for="login_id">
-            아이디를 입력해 주세요
+         <label for="login_nickName">
+            닉네임을 입력해 주세요
          </label>
          <p></p>
-         <input type="text" id="login_id" style="height: 20px; width: 50%;" required>
+         <input type="text" id="login_nickName" style="height: 20px; width: 50%;" required>
       </div>
       <p></p>
       <div id="pw">

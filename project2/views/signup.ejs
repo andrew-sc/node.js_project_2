@@ -21,61 +21,59 @@
 
   <script>
 
-    function isEmail(value){
-        if ( value.length > 2 && /^[0-9a-z]+$/gi.test(value) ) {
-            return true;
-        } else {
-            alert("닉네임은 2글자 이상의 알파벳 대소문자와 숫자로 이루어져야 합니다.")
-            return false;
-        }
-    }
+    // function isEmail(value){
+    //     if ( value.length > 2 && /^[0-9a-z]+$/gi.test(value) ) {
+    //         return true;
+    //     } else {
+    //         alert("닉네임은 2글자 이상의 알파벳 대소문자와 숫자로 이루어져야 합니다.")
+    //         return false;
+    //     }
+    // }
 
-    function isPw(value){
-        if (value.length > 3 && !value.match(value) === null) {
-            return true;
-        } else {
-            alert("비밀번호는 4글자 이상이어야 하며, 닉네임과 같은 단어가 들어갈 수 없습니다.")
-            return false;
-        }
-    }
+    // function isPw(value){
+    //     if (value.length > 3 && !value.match(value) === null) {
+    //         return true;
+    //     } else {
+    //         alert("비밀번호는 4글자 이상이어야 하며, 닉네임과 같은 단어가 들어갈 수 없습니다.")
+    //         return false;
+    //     }
+    // }
 
     function signUp() {
         let nickName = $('#signUp_nick').val();
         let pw = $('#signUp_pw').val();
         let pwCheck = $('#signUp_pwCheck').val();
 
-        if (isEmail(nickName) && isPW(pw)) {
-            $.ajax({
-                  type: "POST",
-                  url: `/api/users/signup`,
-                  data: {
-                    nickName,
-                    pw,
-                    pwCheck,
-                    },
-                    success: function (response) {
-                        if (response["result"] == "success"){
-                            console.log("회원등록 성공!");
-                            alert("등록에 성공하셨습니다!");
-                            return window.location.href='/main';
-                        } else if (response["result"] == "failure") {
-                            console.log("중복된 닉네임");
-                            alert("중복된 닉네임입니다.");
-                            return;
-                        }
-                    }
-            });
-        } else {
-            return;
-        }
-
+        $.ajax({
+            type: "POST",
+            url: `/api/users/signup`,
+            data: {
+            nickName,
+            pw,
+            pwCheck,
+            },
+            success: function (response) {
+                if (response["result"] == "success"){
+                    console.log("회원등록 성공!");
+                    alert("등록에 성공하셨습니다!");
+                    return window.location.href='/main';
+                }
+            },
+            error: function (error) {
+                if (error.responseJSON.result === "nickNameProblem") {
+                    alert(error.responseJSON.errorMessage);
+                } else if (error.responseJSON.result === "worngPassword") {
+                    alert(error.responseJSON.errorMessage);
+                }
+            }
+        });
     }
     
     function checkNick() {
         let nickName = $('#signUp_nick').val();
         
         $.ajax({
-            type: "POSt",
+            type: "POST",
             url: `/api/users/signup/chek`,
             data: {
                 nickName: nickName,

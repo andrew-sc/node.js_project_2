@@ -17,18 +17,24 @@ router.post('/users/signup', async (req, res) => {
   //형식검사
   if (pw === pwCheck) {
     //검증
-    let isNick = await Users.findOne({ nickNmame });
+    let isNick = await Users.findOne({ nickName });
     console.log(isNick);
     if (!isNick) {
         await Users.create({ "nickName": nickName, "pw": pw });
         return res.status(200).send({ result: 'success' });
     } else {
-        console.log('중복된 닉네임입니다.');
-        return res.status(400).send({ result: 'failuare' });
+        console.log('중복된 닉네임');
+        return res.status(400).send({ 
+            result: 'nickNameProblem',
+            errorMessage: '중복된 닉네임입니다.'
+        });
     }
   } else {
-      console.log("비밀번호가 일치하지 않는다")
-      return res.status(400).send({result : "wrongPassword"});
+      console.log("비밀번호가 일치하지 않는다");
+      return res.status(400).send({
+          result : "wrongPassword",
+          errorMessage: "비밀번호가 일치하지 않습니다."
+        });
   }
 });
 
@@ -51,19 +57,22 @@ router.post('/users/signup/chek', async (req, res) => {
 // 틀린 정보가 있다면 "닉네임 또는 페스워드를 확인해 주세요" 메세지 보여주기
 // 에러가 없다면 전체 게시글 목록조회로 이동
 router.post('/users', async (req, res) => {
-  const { nickNmae, pw } = req.body;
-  console.log(nickNmae, pw);
+  const { nickName, pw } = req.body;
+  console.log(nickName, pw);
 
   //회원여부확인
-  let isUser = await Users.findOne({ nickNmame });
+  let isUser = await Users.findOne({ nickName, pw });
   console.log(isUser);
   if (isUser) {
     console.log('유저확인 완료');
     console.log('로그인 진행');
-    return res.status(200).render('/main?id:' + nickNmae);
-  } else {
+    return res.status(200).send({result: 'success'});
+  } else if (isUser === null) {
     console.log('유저가 아닙니다.');
-    return res.status(400).send({ result: 'failure' });
+    return res.status(400).send({ 
+        result: 'failure',
+        errorMessage : "닉네임 또는 패스워드를 확인해 주세요"
+    });
   }
 });
 
