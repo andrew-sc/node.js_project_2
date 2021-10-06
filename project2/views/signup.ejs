@@ -31,7 +31,7 @@
     // }
 
     // function isPw(value){
-    //     if (value.length > 3 && !value.match(value) === null) {
+    //     if (value.length > 3 && !value.match(nickName) === null) {
     //         return true;
     //     } else {
     //         alert("비밀번호는 4글자 이상이어야 하며, 닉네임과 같은 단어가 들어갈 수 없습니다.")
@@ -53,17 +53,23 @@
             pwCheck,
             },
             success: function (response) {
-                if (response["result"] == "success"){
-                    console.log("회원등록 성공!");
-                    alert("등록에 성공하셨습니다!");
-                    return window.location.href='/main';
-                }
+                alert(response.result);
+                window.location.href='/main?nickName='+ nickName;
+                return;
             },
             error: function (error) {
-                if (error.responseJSON.result === "nickNameProblem") {
+                if (error.responseJSON.result === "nickNameUsed") {
                     alert(error.responseJSON.errorMessage);
-                } else if (error.responseJSON.result === "worngPassword") {
+                    return;
+                } else if (error.responseJSON.result === "pwCheckNotSamePw") {
                     alert(error.responseJSON.errorMessage);
+                    return;
+                } else if (error.responseJSON.result === "pwOverlapNickName") {
+                    alert(error.responseJSON.errorMessage);
+                    return;
+                } else if (error.responseJSON.result === "valiationFailed") {
+                    alert(error.responseJSON.errorMessage);
+                    return;
                 }
             }
         });
@@ -79,15 +85,15 @@
                 nickName: nickName,
             },
             success: function (response) {
-                if (response["result"] == "success") {
-                    alert("사용가능한 아이디 입니다.");
-                    return;
-                } else {
-                    alert("중복된 닉네임 입니다. 다시 입력하세요.")
-                }
+                alert(response.successMessage);
+                return;
+            },
+            error: function (error) {
+                alert(error.responseJSON.errorMessage);
+                return;
             }
-        })
-    }
+        });
+    };
 
 
   </script>
