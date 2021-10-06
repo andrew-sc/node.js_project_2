@@ -6,7 +6,7 @@ const Joi = require('joi');
 
 // 회원가입
 // 닉네임 제약 - 최소3자(확)
-// 닉네임 제약 - 알파벳 대소문자(a-z,A-Z), 숫자(0-9)(확) 
+// 닉네임 제약 - 알파벳 대소문자(a-z,A-Z), 숫자(0-9)(확)
 // 비밀번호 제약 - 최소 4자(확)
 // 비밀번호 제약 - 닉네임과 같은 값이 표함된 경우 회원 등록 실패(확)
 // pw와 pwCheck는 정확하게 일치(확)
@@ -14,13 +14,16 @@ const Joi = require('joi');
 // 회원가입 버튼을 누르고 에러메세지가 안뜨면 로그인 페이지로 ㄱㄱ >> 그렇다면 로그인페이지에서 토큰이 있으면 목록페이지로 전달?(확)
 
 const userSchema = Joi.object({
-  nickName: Joi.string().min(3).regex(/^[0-9a-z]+$/i).required(),
+  nickName: Joi.string()
+    .min(3)
+    .regex(/^[0-9a-z]+$/i)
+    .required(),
   pw: Joi.string().min(3).required(),
   pwCheck: Joi.string().min(3).required(),
 });
 
 router.post('/users/signup', async (req, res) => {
-    console.log(req.body);
+  console.log(req.body);
 
   try {
     //검사1 : 글자수, 닉네임 형식
@@ -29,16 +32,16 @@ router.post('/users/signup', async (req, res) => {
 
     //검사2 : 비밀번호에 닉네임 포함여부
     if (pw.match(nickName) === null) {
-      // 검사3 : 비밀번호와 비밀번호체크가 완전 동일함 
+      // 검사3 : 비밀번호와 비밀번호체크가 완전 동일함
       if (pw === pwCheck) {
         let isNick = await Users.findOne({ nickName });
         console.log(isNick);
 
         if (!isNick) {
           await Users.create({ nickName: nickName, pw: pw });
-          return res.status(200).send({ 
-              result: '회원 등록에 성공하셨습니다.'
-            });
+          return res.status(200).send({
+            result: '회원 등록에 성공하셨습니다.',
+          });
         } else {
           console.log('중복된 닉네임');
           return res.status(400).send({
@@ -46,7 +49,6 @@ router.post('/users/signup', async (req, res) => {
             errorMessage: '중복된 닉네임입니다.',
           });
         }
-
       } else {
         console.log('비밀번호가 일치하지 않는다');
         return res.status(400).send({
@@ -54,7 +56,6 @@ router.post('/users/signup', async (req, res) => {
           errorMessage: '비밀번호와 비밀번호 확인이 일치하지 않습니다.',
         });
       }
-
     } else {
       console.log('비밀번호가 닉네임에 중복값이 있다.');
       return res.status(400).send({
@@ -62,12 +63,11 @@ router.post('/users/signup', async (req, res) => {
         errorMessage: '옳바른 형식이 아닙니다.',
       });
     }
-
   } catch (err) {
     //console.log(err);
     return res.status(400).send({
       result: 'valiationFailed',
-      errorMessage: '옳바른 형식이 아닙니다!!!!!!!!!!!',
+      errorMessage: '옳바른 형식이 아닙니다.',
     });
   }
 });
@@ -81,13 +81,13 @@ router.post('/users/signup/chek', async (req, res) => {
   console.log(isNick);
   if (isNick) {
     return res.status(400).send({
-        result: 'failure',
-        errorMessage: '중복된 닉네임입니다.',
+      result: 'failure',
+      errorMessage: '중복된 닉네임입니다.',
     });
   } else {
-    return res.status(200).send({ 
-        result: 'success', 
-        successMessage: '사용가능한 아이디 입니다.'
+    return res.status(200).send({
+      result: 'success',
+      successMessage: '사용가능한 아이디 입니다.',
     });
   }
 });

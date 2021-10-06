@@ -54,7 +54,7 @@
             },
             success: function (response) {
                 alert(response.result);
-                window.location.href='/main?nickName='+ nickName;
+                window.location.href='/main';
                 return;
             },
             error: function (error) {
@@ -119,7 +119,7 @@
              원하는 비밀 번호를 입력해 주세요
          </label>
          <p></p>
-         <input type="text" id="signUp_pw" style="height: 20px; width: 50%;" placeholder="닉네임과 겹치지 않고 4글자 이상 입력해주세요" required>
+         <input type="password" id="signUp_pw" style="height: 20px; width: 50%;" placeholder="닉네임과 겹치지 않고 4글자 이상 입력해주세요" required>
       </div>
       <p></p>
       <div id="pwCheck">
@@ -127,7 +127,7 @@
            원하는 비밀 번호를 다시 입력해 주세요
        </label>
        <p></p>
-       <input type="text" id="signUp_pwCheck" style="height: 20px; width: 50%;" placeholder="닉네임과 겹치지 않고 4글자 이상 입력해주세요" required>
+       <input type="password" id="signUp_pwCheck" style="height: 20px; width: 50%;" placeholder="닉네임과 겹치지 않고 4글자 이상 입력해주세요" required>
     </div>
     <p></p>
      <a> --------------------------------------------------- </a> 
