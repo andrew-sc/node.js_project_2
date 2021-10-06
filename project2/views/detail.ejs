@@ -12,6 +12,9 @@
       crossorigin="anonymous"
     ></script>
 
+    <!-- 공용함수 호출 -->
+    <script src="/api.js"></script>
+
     <title>Post Detail</title>
   </head>
   <script>
@@ -19,15 +22,13 @@
     const urlParams = new URLSearchParams(queryString);
     const postTime = urlParams.get('postTime');
 
-    function checkAuth() {
-      if (!localStorage.getItem('token')) {
-        alert('로그인이 되어있지 않습니다. 로그인 페이지로 이동합니다.');
-        window.location.href = '/main';
-      }
-    }
+    let user;
+    getSelf(function (userinfo) {
+        user = userinfo;
+        console.log(user);
+    });
 
     $(document).ready(function () {
-      checkAuth();
       detail_post();
     });
 
@@ -97,6 +98,8 @@
   </script>
   <body>
     <h1>This page is Post Detail page!</h1>
+    <button onclick="window.location.href='/users/login'">로 그 인</button>
+    <p></p>
     <button onclick="signOut()">로 그 아 웃</button>
     <p></p>
     <a> --------------------------------------------------- </a>

@@ -22,7 +22,7 @@
   <script>
 
     function checkAuth() {
-      if (!localStorage.getItem('token')) {
+      if (localStorage.getItem('token')) {
         alert('이미 로그인이 되어있습니다. 전체 목록으로 이동합니다.');
         window.location.href = '/main';
       }

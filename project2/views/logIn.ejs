@@ -13,6 +13,10 @@
       integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc="
       crossorigin="anonymous"
     ></script>
+
+    <!-- 공용함수 호출 -->
+    <script src="/api.js"></script>
+    
   </head>
   
   <style>
@@ -20,10 +24,11 @@
   </style>
 
   <script>
+
     if(localStorage.getItem("token")) {
       alert("이미 로그인이 되어있습니다. 전체 목록으로 이동합니다.");
       window.location.href='/main';
-      }; 
+      };
 
      function login() {
        let nickName = $('#login_nickName').val();

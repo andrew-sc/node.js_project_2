@@ -11,21 +11,33 @@
       integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc="
       crossorigin="anonymous"
     ></script>
+    <script src="/api.js"></script>
 
     <title>New Post</title>
   </head>
   <script>
-    
-    function checkAuth() {
-      if (!localStorage.getItem('token')) {
+
+    if (!localStorage.getItem('token')) {
         alert('로그인이 되어있지 않습니다. 로그인 페이지로 이동합니다.');
-        window.location.href = '/main';
-      }
+        window.location.href = '/users/login';
     }
 
-    $(document).ready(function () {
-        checkAuth();
+    let user;
+    getSelf(function (userinfo) {
+      user = userinfo;
+      console.log(user);
     });
+
+    // function checkAuth() {
+    //   if (!localStorage.getItem('token')) {
+    //     alert('로그인이 되어있지 않습니다. 로그인 페이지로 이동합니다.');
+    //     window.location.href = '/users/login';
+    //   }
+    // }
+
+    // $(document).ready(function () {
+    //   checkAuth();
+    // });
 
     function new_post() {
       let title = $('#new_title').val();
@@ -100,10 +112,7 @@
       });
     }
 
-    function signOut() {
-      localStorage.clear();
-      window.location.href = '/';
-    }
+    
   </script>
   <body>
     <h1>This page is new post page!</h1>

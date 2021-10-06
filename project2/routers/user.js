@@ -131,7 +131,7 @@ router.post('/auth', async (req, res) => {
 
 // 사용자 정보를 페이지에 보내주는 라우터
 // 미들웨어를 거쳐서 암호화 된 정보를 클라이언트에 넘겨주는 것
-router.get('/users/me', authMiddleware, async (req, res) => {
+router.get('/users/me', authMiddleware, async (req, res) => { // 로컬스토리지에 있는 값을 미들웨어를 통해 헤드로 넣기 위한 작업
   const { user } = res.locals;
   console.log(user);
   res.send({ user });

@@ -12,6 +12,8 @@
       integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc="
       crossorigin="anonymous"
     ></script>
+    <script src="/api.js"></script>
+    
   </head>
   <style>
     .title {
@@ -19,17 +21,7 @@
     }
   </style>
   <script>
-    function checkAuth() {
-      if (!localStorage.getItem('token')) {
-        alert('로그인이 되어있지 않습니다. 로그인 페이지로 이동합니다.');
-        window.location.href = '/main';
-      }
-    }
-
-    $(document).ready(function () {
-      checkAuth();
-    });
-
+    
     $(document).ready(function () {
       get_all_posts();
     });
@@ -84,6 +76,8 @@
   </script>
   <body>
     <h1>This page is index_main page!</h1>
+    <button onclick="window.location.href='/users/login'">로 그 인</button>
+    <p></p>
     <button onclick="signOut()">로 그 아 웃</button>
     <p></p>
     <button onclick="window.location.href='/post'">글 쓰 기</button>

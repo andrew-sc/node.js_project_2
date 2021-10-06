@@ -8,6 +8,8 @@
       <!-- jQuery -->
       <script src="https://code.jquery.com/jquery-3.5.1.js"
         integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
+      <!-- 공용함수 호출 -->
+      <script src="/api.js"></script>
       
       <title>Edit Post</title>
   </head>
@@ -22,6 +24,12 @@
           window.location.href = '/main';
         }
       }
+
+      let user;
+        getSelf(function (userinfo) {
+          user = userinfo;
+          console.log(user);
+        });
 
       $(document).ready(function () {
         checkAuth();
