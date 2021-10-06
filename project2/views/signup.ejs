@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <title>Login Page</title>
+
+    <!-- jQuery -->
+    <script
+      src="https://code.jquery.com/jquery-3.5.1.js"
+      integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc="
+      crossorigin="anonymous"
+    ></script>
+  </head>
+  
+  <style>
+    
+  </style>
+
+  <script>
+
+    function isEmail(value){
+        if ( value.length > 2 && /^[0-9a-z]+$/gi.test(value) ) {
+            return true;
+        } else {
+            alert("닉네임은 2글자 이상의 알파벳 대소문자와 숫자로 이루어져야 합니다.")
+            return false;
+        }
+    }
+
+    function isPw(value){
+        if (value.length > 3 && !value.match(value) === null) {
+            return true;
+        } else {
+            alert("비밀번호는 4글자 이상이어야 하며, 닉네임과 같은 단어가 들어갈 수 없습니다.")
+            return false;
+        }
+    }
+
+    function signUp() {
+        let nickName = $('#signUp_nick').val();
+        let pw = $('#signUp_pw').val();
+        let pwCheck = $('#signUp_pwCheck').val();
+
+        if (isEmail(nickName) && isPW(pw)) {
+            $.ajax({
+                  type: "POST",
+                  url: `/api/users/signup`,
+                  data: {
+                    nickName,
+                    pw,
+                    pwCheck,
+                    },
+                    success: function (response) {
+                        if (response["result"] == "success"){
+                            console.log("회원등록 성공!");
+                            alert("등록에 성공하셨습니다!");
+                            return window.location.href='/main';
+                        } else if (response["result"] == "failure") {
+                            console.log("중복된 닉네임");
+                            alert("중복된 닉네임입니다.");
+                            return;
+                        }
+                    }
+            });
+        } else {
+            return;
+        }
+
+    }
+    
+    function checkNick() {
+        let nickName = $('#signUp_nick').val();
+        
+        $.ajax({
+            type: "POSt",
+            url: `/api/users/signup/chek`,
+            data: {
+                nickName: nickName,
+            },
+            success: function (response) {
+                if (response["result"] == "success") {
+                    alert("사용가능한 아이디 입니다.");
+                    return;
+                } else {
+                    alert("중복된 닉네임 입니다. 다시 입력하세요.")
+                }
+            }
+        })
+    }
+
+
+  </script>
+  <body>
+    <h1>This page is sign up page!</h1>
+    <a> --------------------------------------------------- </a>
+  <p></p>
+  <div id="signUp">
+      <div id="nickName">
+         <label for="signUp_nick">
+            원하는 닉네임를 입력해 주세요
+         </label>
+         <p></p>
+         <input type="text" id="signUp_nick" style="height: 20px; width: 50%;" placeholder="영어 대소문자와 숫자를 2글자 이상 입력해주세요" required>
+         <p></p>
+         <button onclick="checkNick()">
+             중복검사
+         </button>
+        </div>
+      <p></p>
+      <div id="pw">
+          <label for="signUp_pw">
+             원하는 비밀 번호를 입력해 주세요
+         </label>
+         <p></p>
+         <input type="text" id="signUp_pw" style="height: 20px; width: 50%;" placeholder="닉네임과 겹치지 않고 4글자 이상 입력해주세요" required>
+      </div>
+      <p></p>
+      <div id="pwCheck">
+        <label for="signUp_pwCheck">
+           원하는 비밀 번호를 다시 입력해 주세요
+       </label>
+       <p></p>
+       <input type="text" id="signUp_pwCheck" style="height: 20px; width: 50%;" placeholder="닉네임과 겹치지 않고 4글자 이상 입력해주세요" required>
+    </div>
+    <p></p>
+     <a> --------------------------------------------------- </a> 
+  <p></p>
+  <button onclick="signUp()">
+    회 원 가 입
+  </button>
+  <p></p>
+  <button onclick="window.location.href='/main'">
+    처 음 으 로
+  </button>
+  </body>
+</html>

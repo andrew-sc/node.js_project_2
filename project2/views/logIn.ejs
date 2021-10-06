@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <title>Login Page</title>
+
+    <!-- jQuery -->
+    <script
+      src="https://code.jquery.com/jquery-3.5.1.js"
+      integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc="
+      crossorigin="anonymous"
+    ></script>
+  </head>
+  
+  <style>
+    
+  </style>
+
+  <script>
+     function login() {
+       let id = $('#login_id').val();
+       let pw = $('#login_pw').val();
+
+       $.ajax({
+         type: "POST",
+         url: `/api/users`,
+         data: {},
+         success: function (response) {
+           if(response.result === "failure") {
+             alert("닉네임 또는 페스워드를 확인해 주세요")
+             return;
+           }
+         }
+       })
+     }
+
+
+  </script>
+  <body>
+    <h1>WELCOME TO VISIT THIS BOARD SITE</h1>
+    <h1>This page is login page!</h1>
+    <a> --------------------------------------------------- </a>
+  <p></p>
+  <div id="login">
+      <div id="id">
+         <label for="login_id">
+            아이디를 입력해 주세요
+         </label>
+         <p></p>
+         <input type="text" id="login_id" style="height: 20px; width: 50%;" required>
+      </div>
+      <p></p>
+      <div id="pw">
+          <label for="login_pw">
+             비밀 번호를 입력해 주세요
+         </label>
+         <p></p>
+         <input type="text" id="login_pw" style="height: 20px; width: 50%;" required>
+      </div>
+      <p></p>
+     <a> --------------------------------------------------- </a> 
+  <p></p>
+  <button onclick="login()">
+        로 그 인
+  </button>
+  <p></p>
+  <button onclick="window.location.href='/users/signup'">
+    회 원 가 입
+  </button>
+  <p></p>
+  <button onclick="window.location.href='/main'">
+        처 음 으 로
+  </button>
+  </body>
+</html>
