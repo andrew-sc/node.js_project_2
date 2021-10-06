@@ -3,6 +3,7 @@ const router = express.Router();
 const Users = require('../schemas/user');
 const Jwt = require('jsonwebtoken');
 const Joi = require('joi');
+const authMiddleware = require('../middlewares/auth-middleware');
 
 // 회원가입
 // 닉네임 제약 - 최소3자(확)
@@ -96,17 +97,24 @@ router.post('/users/signup/chek', async (req, res) => {
 // 로그인시 닉네임과 비밀번호가 데이터베이스에 등록된 것인지 확인
 // 틀린 정보가 있다면 "닉네임 또는 페스워드를 확인해 주세요" 메세지 보여주기
 // 에러가 없다면 전체 게시글 목록조회로 이동
-router.post('/users', async (req, res) => {
+router.post('/auth', async (req, res) => {
   const { nickName, pw } = req.body;
   console.log(nickName, pw);
 
   //회원여부확인
-  let isUser = await Users.findOne({ nickName, pw });
+  const isUser = await Users.findOne({ nickName, pw });
   console.log(isUser);
+
   if (isUser) {
     console.log('유저확인 완료');
     console.log('로그인 진행');
-    return res.status(200).send({ result: 'success' });
+
+    //회원정보 암호화
+    const token = Jwt.sign({ nickName: isUser.nickName }, 'project2Key'); //인코딩완료
+    return res.status(200).send({
+      result: 'success',
+      token: token,
+    });
   } else if (isUser === null) {
     console.log('유저가 아닙니다.');
     return res.status(400).send({
@@ -120,5 +128,13 @@ router.post('/users', async (req, res) => {
 // 회원가입/로그인/게시글목록조회/게시글조회 를 제외한 나머지 페이지는 로그인시에만 허용
 // 로그인을 하지 않거나, 올바르지 않은 경로로 접속한 사용자 > "로그인이 필요합니다" > 로그인페이지로 이동
 // 로그인을 한 사용자가 로그인 or 회원가입 페이지에 접속한 경우 "이미 로그인이 되어있습니다" - 전체 게시글페이지로 이동
+
+// 사용자 정보를 페이지에 보내주는 라우터
+// 미들웨어를 거쳐서 암호화 된 정보를 클라이언트에 넘겨주는 것
+router.get('/users/me', authMiddleware, async (req, res) => {
+  const { user } = res.locals;
+  console.log(user);
+  res.send({ user });
+});
 
 module.exports = router;

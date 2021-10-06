@@ -1,55 +1,66 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-      <meta charset="UTF-8">
-      <meta http-equiv="X-UA-Compatible" content="IE=edge">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      
-      <!-- jQuery -->
-      <script src="https://code.jquery.com/jquery-3.5.1.js"
-        integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
-      
-      <title>Post Detail</title>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- jQuery -->
+    <script
+      src="https://code.jquery.com/jquery-3.5.1.js"
+      integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc="
+      crossorigin="anonymous"
+    ></script>
+
+    <title>Post Detail</title>
   </head>
   <script>
-        const queryString = window.location.search;
-        const urlParams = new URLSearchParams(queryString);
-        const postTime = urlParams.get("postTime");
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    const postTime = urlParams.get('postTime');
 
-        $(document).ready(function() {
-            detail_post();
-        });
+    function checkAuth() {
+      if (!localStorage.getItem('token')) {
+        alert('로그인이 되어있지 않습니다. 로그인 페이지로 이동합니다.');
+        window.location.href = '/main';
+      }
+    }
 
-        function detail_post(){
+    $(document).ready(function () {
+      checkAuth();
+      detail_post();
+    });
 
-            $('#postDetail').empty();
+    function detail_post() {
+      $('#postDetail').empty();
 
-            $.ajax({
-                type: 'GET',
-                url: `/api/post/detail/${postTime}`,
-                data: {},
-                error: function(xhr, status, error) {
-                    if (status == 404) {
-                        alert("게시글 불러오기에 실패했습니다.");
-                    }
-                    window.location.herf="/main";
-                },
-                success: function(response) {
-                    let result = response["result"];
-                    let title = result["title"];
-                    let writer = result["writer"];
-                    let time = result["postTime"];
-                    let contents = result["contents"];
+      $.ajax({
+        type: 'GET',
+        url: `/api/post/detail/${postTime}`,
+        data: {},
+        error: function (xhr, status, error) {
+          if (status == 404) {
+            alert('게시글 불러오기에 실패했습니다.');
+          }
+          window.location.herf = '/main';
+        },
+        success: function (response) {
+          let result = response['result'];
+          let title = result['title'];
+          let writer = result['writer'];
+          let time = result['postTime'];
+          let contents = result['contents'];
 
-                    let dateY = time.substr(0,4);
-                    let dateM = time.substr(4,2);
-                    let dateD = time.substr(6,2);
-                    let dateH = time.substr(8,2);
-                    let dateMi = time.substr(10,2);
-                    console.log(dateY, dateM, dateD, dateH, dateMi);
-                    let postingDate = dateY + "-" + dateM + "-" + dateD + " " + dateH + ":" + dateMi ;
+          let dateY = time.substr(0, 4);
+          let dateM = time.substr(4, 2);
+          let dateD = time.substr(6, 2);
+          let dateH = time.substr(8, 2);
+          let dateMi = time.substr(10, 2);
+          console.log(dateY, dateM, dateD, dateH, dateMi);
+          let postingDate =
+            dateY + '-' + dateM + '-' + dateD + ' ' + dateH + ':' + dateMi;
 
-                    let temp_html = `<a id="title">
+          let temp_html = `<a id="title">
                                         Title : ${title}
                                     </a>
                                     <p></p>
@@ -69,51 +80,45 @@
                                     <p></p>
                                     <a>
                                     ---------------------------------------------------
-                                    </a>`
-                    $('#postDetail').append(temp_html);
-                }
-            });
-        }
+                                    </a>`;
+          $('#postDetail').append(temp_html);
+        },
+      });
+    }
 
-        function go_edit() {
-            window.location.href='/post/edit?postTime='+ postTime;
-        }
+    function go_edit() {
+      window.location.href = '/post/edit?postTime=' + postTime;
+    }
 
+    function signOut() {
+      localStorage.clear();
+      window.location.href = '/';
+    }
   </script>
   <body>
-    <h1>
-        This page is Post Detail page!
-    </h1>
-    <a>
-        ---------------------------------------------------
-    </a>
+    <h1>This page is Post Detail page!</h1>
+    <button onclick="signOut()">로 그 아 웃</button>
+    <p></p>
+    <a> --------------------------------------------------- </a>
     <p></p>
     <div id="postDetail">
-         <a id="title">
-             Title : test title
-         </a>
-         <p></p>
-         <a id="writer">
-             Writer : test writer
-         </a>
-         <p></p>
-         <a id="date">
-             Date : test date
-         </a>
-         <p></p>
-         <label for="contents">
-            Contents
-         </label>
-         <p></p>
-         <textarea id="contents" style="height: 100px; width: 344px; font-size: larger;" readonly></textarea>
+      <a id="title"> Title : test title </a>
+      <p></p>
+      <a id="writer"> Writer : test writer </a>
+      <p></p>
+      <a id="date"> Date : test date </a>
+      <p></p>
+      <label for="contents"> Contents </label>
+      <p></p>
+      <textarea
+        id="contents"
+        style="height: 100px; width: 344px; font-size: larger"
+        readonly
+      ></textarea>
     </div>
     <p></p>
-    <button onclick="go_edit()">
-        수 정 하 기
-    </button>
+    <button onclick="go_edit()">수 정 하 기</button>
     <p></p>
-    <button onclick="window.location.href='/main'">
-        처 음 으 로
-    </button>
+    <button onclick="window.location.href='/main'">처 음 으 로</button>
   </body>
 </html>

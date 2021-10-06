@@ -12,11 +12,19 @@
       <title>Edit Post</title>
   </head>
   <script>
-        const queryString = window.location.search;
-        const urlParams = new URLSearchParams(queryString);
-        const postTime = urlParams.get("postTime");
+      const queryString = window.location.search;
+      const urlParams = new URLSearchParams(queryString);
+      const postTime = urlParams.get("postTime");
 
-      $(document).ready(function(){
+      function checkAuth() {
+        if (!localStorage.getItem('token')) {
+          alert('로그인이 되어있지 않습니다. 로그인 페이지로 이동합니다.');
+          window.location.href = '/main';
+        }
+      }
+
+      $(document).ready(function () {
+        checkAuth();
         detail_post();
       });
 
@@ -154,11 +162,18 @@
             })                       
         }
 
+    function signOut() {
+      localStorage.clear();
+      window.location.href = '/';
+    }
+
   </script>
   <body>
     <h1>
         This page is new post page!
     </h1>
+    <button onclick="signOut()">로 그 아 웃</button>
+    <p></p>
     <a>
       ---------------------------------------------------
     </a>

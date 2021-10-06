@@ -3,6 +3,7 @@ const router = express.Router();
 
 const Post = require("../schemas/post");
 const allPost = require("../schemas/all_post");
+const authMiddleware = require('../middlewares/auth-middleware');
 
 
 // 요구
@@ -25,7 +26,7 @@ router.get("/main", async(req, res) => {
 // 제목, 작성자명, 비밀번호, 내용 입력
 // 글쓰기 버튼 > 게시글 목록조회 페이지 + 작성게시물이 1번으로 도출
 
-router.post("/post/add", async(req, res, next) => {
+router.post("/post/add", authMiddleware, async(req, res, next) => {
     const { title, writer, pw, contents, postTime } = await req.body; // {키:벨류, 키:벨류 ...} 의 형태로의 지정 형식
     //console.log(title, writer, pw, contents, postTime)
 
@@ -53,7 +54,7 @@ router.get("/post/detail/:postTime", async (req, res) => {
 
 // db에서 값들을 끌어오는 것은 상세페이지의 api사용!!
 
-router.put("/post/edit/save", async(req, res) => { // db에서 해당 post의 값을 수정하기
+router.put("/post/edit/save", authMiddleware, async(req, res) => { // db에서 해당 post의 값을 수정하기
     
     const { title_edited, writer_edited, pw_edited, contents_edited, postTime } = await req.body; //새로입력
     console.log(title_edited, writer_edited, pw_edited, contents_edited, postTime)
@@ -75,7 +76,7 @@ router.put("/post/edit/save", async(req, res) => { // db에서 해당 post의 �
 
 //     포스트 삭제기능
 // 비밀번호 비교 후 동일할 때만 실행
-router.delete("/post/edit/delete/:postTime", async (req,res) => {
+router.delete("/post/edit/delete/:postTime", authMiddleware, async (req,res) => {
     const postTime = req.params.postTime;
     console.log(postTime);
     const inPutPw = req.body.inPutPw;
@@ -92,7 +93,5 @@ router.delete("/post/edit/delete/:postTime", async (req,res) => {
     }
 })
 
-//구현?
-//      검색기능
 
 module.exports = router;

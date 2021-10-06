@@ -20,16 +20,22 @@
   </style>
 
   <script>
+    if(localStorage.getItem("token")) {
+      alert("이미 로그인이 되어있습니다. 전체 목록으로 이동합니다.");
+      window.location.href='/main';
+      }; 
+
      function login() {
        let nickName = $('#login_nickName').val();
        let pw = $('#login_pw').val();
 
        $.ajax({
          type: "POST",
-         url: `/api/users`,
+         url: `/api/auth`,
          data: { nickName, pw },
          success: function (response) {
            if (response["result"] === "success") {
+             localStorage.setItem("token", response.token); //.setItem 은 로컬스토리지에 저장하는 것의 키:벨류 를 정하기 가능
              window.location.href='/main';
            } else if (response["result"] === "failure") {
               alert(response["errorMessage"]);
