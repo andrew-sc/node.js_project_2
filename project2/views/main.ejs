@@ -24,9 +24,17 @@
   </style>
   <script>
     
+    let userInfo;
+    getSelf( function (user) {
+          userInfo = user;
+          console.log("함수 안에서의 유저인포의 닉네임!", userInfo.nickName);
+    });
+
     $(document).ready(function () {
       get_all_posts();
     });
+
+    
 
     function get_all_posts() {
       $('#postlist').empty();
@@ -53,7 +61,7 @@
       let postingDate = dateY + '-' + dateM + '-' + dateD;
 
       let htmlTemp = `<p></p>
-                            <a class="title" id="title" onclick="window.location.href='/post/detail?postTime=${post['postTime']}'">
+                            <a class="title" id="title" onclick="window.location.href='/post/detail?postTime=${post['postTime']}&userId=${userInfo.nickName}'">
                                 title : ${post['title']}
                             </a>
                             <p></p>

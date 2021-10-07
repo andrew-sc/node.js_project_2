@@ -45,9 +45,12 @@ app.get('/post/detail', async (req, res) => {
   const postTime = req.query.postTime
 
   const comments =  await Comment.find({ postTime }).sort({ commentTime: -1 });
-  console.log(comments);
+  // console.log(comments);
 
-  res.render('detail', {comments} );
+  const nowUserId = req.query.userId;
+  console.log(nowUserId);
+
+  res.render('detail', {comments, nowUserId} );
 });
 
 app.get('/post/edit', (req, res) => {

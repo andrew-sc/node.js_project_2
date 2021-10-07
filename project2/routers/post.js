@@ -87,7 +87,10 @@ router.put('/post/edit/save', authMiddleware, async (req, res) => {
 
 //     포스트 삭제기능
 // 비밀번호 비교 후 동일할 때만 실행
-router.delete('/post/edit/delete/:postTime', authMiddleware, async (req, res) => {
+router.delete(
+  '/post/edit/delete/:postTime',
+  authMiddleware,
+  async (req, res) => {
     const postTime = req.params.postTime;
     console.log(postTime);
     const inPutPw = req.body.inPutPw;
@@ -102,7 +105,6 @@ router.delete('/post/edit/delete/:postTime', authMiddleware, async (req, res) =>
     } else {
       res.send({ result: 'fail' });
     }
-
   }
 );
 
@@ -111,24 +113,34 @@ router.delete('/post/edit/delete/:postTime', authMiddleware, async (req, res) =>
 //댓글 작성칸을 누를 때, "로그인이 필요한 기능입니다." 띄우기(완)
 //내용을 비운채 등록을 누른경우 "댓글 내용을 입력해주세요"(완)
 
-router.post('/posts/comments', async(req, res) => {
-    console.log(req.body);
-    if (req.body.contents === ""){
-        return res.status(400).send({result: "contentsValueEmpty", errorMsg: "댓글 내용을 입력해 주세요"});
-    }
+router.post('/posts/comments', async (req, res) => {
+  console.log(req.body);
+  if (req.body.contents === '') {
+    return res
+      .status(400)
+      .send({
+        result: 'contentsValueEmpty',
+        errorMsg: '댓글 내용을 입력해 주세요',
+      });
+  }
 
-    const { postId, userId, contents, commentTime } = await req.body;
+  const { postId, userId, contents, commentTime } = await req.body;
 
-    try{
-        await Comment.create({ postId, userId, contents, commentTime });
-        return res.status(200).send({result: "success", successMsg: "댓글 등록 성공!"});
-    } catch(error) {
-        console.log(error);
-        return res.status(400).send({result: "failure", errorMsg: "알 수 없는 문제가 발생했습니다. 관리자에게 문의하세요."});
-    }
-})
-
-
+  try {
+    await Comment.create({ postId, userId, contents, commentTime });
+    return res
+      .status(200)
+      .send({ result: 'success', successMsg: '댓글 등록 성공!' });
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(400)
+      .send({
+        result: 'failure',
+        errorMsg: '알 수 없는 문제가 발생했습니다. 관리자에게 문의하세요.',
+      });
+  }
+});
 
 // 게시글 detail 페이지의 댓글
 //특정 게시물의 전체 댓글 불러오기(완)
@@ -138,15 +150,20 @@ router.post('/posts/comments', async(req, res) => {
 //댓글창이 빈상태 >> 등록 버튼 클릭 >> 알럿("내용을 입력해 주세요")
 //내가 작성한 댓글에만 (수정,삭제) 버튼 표시
 
-router.get('/posts/comments', async(req, res) => {
-    try{
-        const commentsList = await Comment.find({}).sort({ commentTime: -1 });
-        console.log(commentsList);
-        return res.status(200).send({ commentsList });
-    } catch(error) {
-        return res.status(400).send({result: "failure", errorMsg: "알 수 없는 문제가 발생했습니다. 관리자에게 문의하세요."});
-    }
-})
+router.get('/posts/comments', async (req, res) => {
+  try {
+    const commentsList = await Comment.find({}).sort({ commentTime: -1 });
+    console.log(commentsList);
+    return res.status(200).send({ commentsList });
+  } catch (error) {
+    return res
+      .status(400)
+      .send({
+        result: 'failure',
+        errorMsg: '알 수 없는 문제가 발생했습니다. 관리자에게 문의하세요.',
+      });
+  }
+});
 
 // 댓글 수정
 //내가 작성한 댓글만 수정 가능하게 하기
@@ -154,23 +171,39 @@ router.get('/posts/comments', async(req, res) => {
 //댓글의 기본값은 이전에 입력했던 내용
 //수정버튼을 누르면 값이 없는 채로 이동 못함
 //저장을 누르면 새로입력한 내용으로 바꾸기
-router.patch('/posts/comments', async(req, res) => {
-    return;
+router.patch('/posts/comments', async (req, res) => {
+    try{
+        const { _id, newContents } = await req.body;
+        console.log(_id, newContents);
+        await Comment.updateOne({_id},{$set: {"contents" : newContents}});
+        return res.status(200).send({ result: 'success', successMsg: '댓글 수정이 완료되었습니다.' });
+    } catch(error) {
+        return res
+      .status(400)
+      .send({
+        resutl: 'failure',
+        errorMsg: '알 수 없는 오류가 발생했습니다. 관리자에게 문의하세요.',
+      });
+    }
 });
-
 
 // 댓글 삭제
 //내가 작성한 댓글만 삭제가능
 //confirm("정말로 삭제하시겠습니까?") >> 확인 >> 삭제실행
 // 취소를 누른경우 유지
-router.delete('/posts/comments', async(req, res) => {
-    
-    
-    return;
+router.delete('/posts/comments', async (req, res) => {
+  try {
+    const { userId, _id, postTime } = await req.body;
+    await Comment.deleteOne({ userId, _id, postTime });
+    return res.status(200).send({ result: 'success' });
+  } catch (error) {
+    return res
+      .status(400)
+      .send({
+        resutl: 'failure',
+        errorMsg: '알 수 없는 오류가 발생했습니다. 관리자에게 문의하세요.',
+      });
+  }
 });
-
-
-
-
 
 module.exports = router;

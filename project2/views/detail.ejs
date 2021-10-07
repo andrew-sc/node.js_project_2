@@ -144,23 +144,59 @@
     };
 
     function commentDelete() {
-      let userId = $('#comment_userId').val();
-      console.log(userId);
-
-      // if(confirm("정말로 지우시겠습니까?")) {
-      //   $.ajax({
-      //     type: 'DELETE',
-      //     url: `/posts/comments?postTime=${postTime}`,
-      //     date: {},
-      //     success: function (response) {
-      //       return;
-      //     },
-      //     error: function (error) {
-      //       return;
-      //     }
-      //   });
-      // }
+      const userId = $('#comment_userId').text();
+      const _id = $('#comment_id').text();
+      console.log(userId, _id, postTime);
+      
+      if(confirm("정말로 지우시겠습니까?")) {
+        $.ajax({
+          type: 'DELETE',
+          url: '/api/posts/comments',
+          data: { userId, _id, postTime },
+          success: function (response) {
+            if(response.result === "success"){
+              return window.location.reload();
+            }
+          },
+          error: function (error) {
+            return alert(response.responseJSON.errorMsg);
+          }
+        });
+      } else {
+        return;
+      }
     }
+
+  //토글을 통해 댓글 수정창을 띄운다
+  function toggle(id1, id2) {
+    let chg1 = document.getElementById(id1);
+    chg1.style.display = ((chg1.style.display!='none') ? 'none' : 'block');
+
+    let chg2 = document.getElementById(id2);
+    chg2.style.display = ((chg2.style.display!='none') ? 'none' : 'block');
+  }
+
+  function commentUpdate(id) {
+    let newContents = $('#comment_input'+id).val();
+    let _id = id;
+    console.log(newContents, _id);
+
+    $.ajax({
+      type: 'PATCH',
+      url: '/api/posts/comments',
+      data: {_id, newContents},
+      success: function(response){
+        if(response.result === "success"){
+          alert(response.successMsg);
+          return window.location.reload();
+        }
+      },
+      error: function(error){
+        return alert(response.responseJSON.errorMsg);
+      } 
+    });
+  }
+
 
 
   </script>
@@ -185,7 +221,7 @@
       <p></p>
       <textarea
         id="contents"
-        style="height: 100px; width: 344px; font-size: larger"
+        style="height: 100px; width: 20%; font-size: larger"
         readonly
       ></textarea>
     </div>
@@ -202,9 +238,9 @@
       </label>
       <p></p>
       <textarea
-          id="commentTextarea"
-          style="height: 100px; width: 50%"
-          onclick="checkLogin()"></textarea>
+        id="commentTextarea"
+        style="height: 100px; width: 20.5%"
+        onclick="checkLogin()"></textarea>
       <p></p>
       <button onclick="commentSave()">댓 글 등 록</button>
     </div>
@@ -214,29 +250,58 @@
       <p></p>
       <a> --------------------------------------------------- </a>
       <% for(let comment of comments) { %>
-      <p></p>
-      <label>댓글내용:</label>
-      <p></p>
-      <a id="comment_contents"><%= comment.contents %></a>
-      <p style="height: 1px;"></p>
-      <label>작성자:</label>
-      <p></p>
-      <a id="comment_userId"><%= comment.userId %></a>
-      <p style="height: 1px;"></p>
-      <label>작성 시간:</label>
-      <p></p>
-      <a id="comment_commentTime"><%= comment.commentTime %></a>
-      <p></p>
-      <a style="display: none;" id="comment_id"><%= comment._id %></a>
-      <p style="display: none;"></p>
-      <button onclick="commentUpdate()">수 정</button>
-      <p></p>
-      <button onclick="commentUpdateSave()">수정 저장</button>
-      <p></p>
-      <button onclick="commentDelete()">삭 제</button>
-      <p></p>
-      <a> --------------------------------------------------- </a>
-      <p></p>
+        <% if (nowUserId === comment.userId) { %>
+        <p></p>
+        <label>댓글내용:</label>
+        <p></p>
+        <a style="display: block;" id="contents<%= comment._id %>"><%= comment.contents %></a>
+        <p></p>
+        <div id='commnetInputDiv<%= comment._id %>' style="display: none;">
+          <input id="comment_input<%= comment._id %>" style="height: 20px; width: 30%;" value="<%= comment.contents %>">
+          <button id="comment_inputBtn" style="height: 19pt;" onclick="commentUpdate('<%= comment._id %>')" >저 장</button>
+        </div>
+        <p style="height: 1px;"></p>
+        <label>작성자:</label>
+        <p></p>
+        <a id="comment_userId"><%= comment.userId %></a>
+        <p style="height: 1px;"></p>
+        <label>작성 시간:</label>
+        <p></p>
+        <a id="comment_commentTime"><%= comment.commentTime %></a>
+        <p></p>
+        <a style="display: none;" id="comment_id"><%= comment._id %></a>
+        <p style="display: none;"></p>
+        <button id="updateBtn" onclick="toggle('contents<%= comment._id %>', 'commnetInputDiv<%= comment._id %>')">수 정</button>
+        <p></p>
+        <button onclick="commentDelete()">삭 제</button>
+        <p></p>
+        <a> --------------------------------------------------- </a>
+        <p></p>
+        <% } else { %>
+          <p></p>
+          <label>댓글내용:</label>
+          <p></p>
+          <a style="display: block;" id="contents<%= comment._id %>"><%= comment.contents %></a>
+          <p></p>
+          <div id='commnetInputDiv<%= comment._id %>' style="display: none;">
+            <input id="comment_input<%= comment._id %>" style="height: 20px; width: 30%;" value="<%= comment.contents %>">
+            <button id="comment_inputBtn" style="height: 19pt;" onclick="commentUpdate('<%= comment._id %>')" >저 장</button>
+          </div>
+          <p style="height: 1px;"></p>
+          <label>작성자:</label>
+          <p></p>
+          <a id="comment_userId"><%= comment.userId %></a>
+          <p style="height: 1px;"></p>
+          <label>작성 시간:</label>
+          <p></p>
+          <a id="comment_commentTime"><%= comment.commentTime %></a>
+          <p></p>
+          <a style="display: none;" id="comment_id"><%= comment._id %></a>
+          <p style="display: none;"></p>
+          <p></p>
+          <a> --------------------------------------------------- </a>
+          <p></p>
+        <% } %>
       <% } %>
     </div>
 
