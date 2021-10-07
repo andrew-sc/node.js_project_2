@@ -143,6 +143,25 @@
       }
     };
 
+    function commentDelete() {
+      let userId = $('#comment_userId').val();
+      console.log(userId);
+
+      // if(confirm("정말로 지우시겠습니까?")) {
+      //   $.ajax({
+      //     type: 'DELETE',
+      //     url: `/posts/comments?postTime=${postTime}`,
+      //     date: {},
+      //     success: function (response) {
+      //       return;
+      //     },
+      //     error: function (error) {
+      //       return;
+      //     }
+      //   });
+      // }
+    }
+
 
   </script>
   <body>
@@ -189,24 +208,32 @@
       <p></p>
       <button onclick="commentSave()">댓 글 등 록</button>
     </div>
-
+      <!-- comment.userId -->
     <div id="commentList">
       <h3>댓글</h3>
       <p></p>
       <a> --------------------------------------------------- </a>
       <% for(let comment of comments) { %>
       <p></p>
-      <label for="comment_contents">댓글내용:</label>
+      <label>댓글내용:</label>
       <p></p>
       <a id="comment_contents"><%= comment.contents %></a>
       <p style="height: 1px;"></p>
-      <label for="comment_userId">작성자:</label>
+      <label>작성자:</label>
       <p></p>
       <a id="comment_userId"><%= comment.userId %></a>
       <p style="height: 1px;"></p>
-      <label for="comment_commentTime">작성 시간:</label>
+      <label>작성 시간:</label>
       <p></p>
       <a id="comment_commentTime"><%= comment.commentTime %></a>
+      <p></p>
+      <a style="display: none;" id="comment_id"><%= comment._id %></a>
+      <p style="display: none;"></p>
+      <button onclick="commentUpdate()">수 정</button>
+      <p></p>
+      <button onclick="commentUpdateSave()">수정 저장</button>
+      <p></p>
+      <button onclick="commentDelete()">삭 제</button>
       <p></p>
       <a> --------------------------------------------------- </a>
       <p></p>

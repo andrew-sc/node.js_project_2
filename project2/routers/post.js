@@ -151,6 +151,7 @@ router.get('/posts/comments', async(req, res) => {
 // 댓글 수정
 //내가 작성한 댓글만 수정 가능하게 하기
 //댓글 본문이 사라짐 > 댓글 내용 + 저장버튼 생성
+//댓글의 기본값은 이전에 입력했던 내용
 //수정버튼을 누르면 값이 없는 채로 이동 못함
 //저장을 누르면 새로입력한 내용으로 바꾸기
 router.patch('/posts/comments', async(req, res) => {
@@ -163,6 +164,8 @@ router.patch('/posts/comments', async(req, res) => {
 //confirm("정말로 삭제하시겠습니까?") >> 확인 >> 삭제실행
 // 취소를 누른경우 유지
 router.delete('/posts/comments', async(req, res) => {
+    
+    
     return;
 });
 
