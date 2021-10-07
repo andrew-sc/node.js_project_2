@@ -21,12 +21,22 @@
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
     const postTime = urlParams.get('postTime');
-    console.log(postTime);
+
+    // 로컬스토리지에 토큰이 저장되어있다면 로그인을 한 상태이고 아니라면 로그인을 하지않은 상태.
+    // 두 상태를 구분하여 userId관련 사용을 가이드 함
+    // let userInfo;
+    // if(localStorage.getItem('token')){
+    //   getSelf( function (user) {
+    //       userInfo = user;
+    //       console.log("함수 안에서의 유저인포의 닉네임!", userInfo.nickName);
+    //   });
+    // }
 
     let userInfo;
     getSelf( function (user) {
-        userInfo = user;
-    });
+          userInfo = user;
+          console.log("함수 안에서의 유저인포의 닉네임!", userInfo.nickName);
+      });
 
     $(document).ready(function () {
       detail_post();
@@ -92,11 +102,16 @@
     }
 
     function commentSave() {
+      // if(userInfo === undefined) {
+      //   alert("로그인이 필요한 기능입니다.");
+      //   return window.location.href='/users/login'
+      // }
+
       let postId = postTime;
       let userId = userInfo.nickName;
+      console.log("저장기능의 유저아이디", userId);
       let contents = $('#commentTextarea').val();
       let commentTime = new Date().toString();
-
 
       $.ajax({
         type: "POST",
@@ -104,35 +119,29 @@
         data: { postId, userId, contents, commentTime },
         success: function (response) {
           alert(response.successMsg);
-          if (confirm("로딩을 위해 새로고침 하겠습니다.")){
-            window.location.reload();
+          if (confirm("댓글 업데이트를 위해 새로고침 하겠습니다.")){
+            return window.location.reload();
           } else {
-            return;
+            alert("그래도 새로고침을 하셔야 합니다. 흥 메롱 😠 ")
+            return window.location.reload();
           }
         },
         error: function (error) {
-          return alert(error.responseJSON.errorMsg);
+          if(error.responseJSON.result === "contentsValueEmpty"){
+            return alert(error.responseJSON.errorMsg);
+          } else if (error.responseJSON.result === "failure"){
+            return alert(error.responseJSON.errorMsg);
+          } 
         }
       });
     }
 
-    function commentShow() {
-      $('#commentList').empty();
-
-      $.ajax({
-        type: 'GET',
-        url: '/api/posts/comments',
-        data: {},
-        success: function(response) {
-          console.log("성공!");
-          return;
-        },
-        error: function(err) {
-          console.log("에러");
-          return;
-        }
-      });
-    }
+    function checkLogin() {
+      if(userInfo === undefined) {
+        alert("로그인이 필요한 기능입니다.");
+        return window.location.href='/users/login'
+      }
+    };
 
 
   </script>
@@ -142,7 +151,7 @@
     <p></p>
     <button onclick="signOut()">로 그 아 웃</button>
     <p></p>
-    <button onclick="window.location.href='/main'">처 음 으 로</button>
+    <button onclick="window.location.href='/main'">전 체 게 시 글</button>
     <p></p>
     <a> --------------------------------------------------- </a>
     <p></p>
@@ -175,8 +184,8 @@
       <p></p>
       <textarea
           id="commentTextarea"
-          style="height: 100px; width: 50%">
-      </textarea>
+          style="height: 100px; width: 50%"
+          onclick="checkLogin()"></textarea>
       <p></p>
       <button onclick="commentSave()">댓 글 등 록</button>
     </div>

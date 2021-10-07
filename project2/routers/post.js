@@ -106,10 +106,19 @@ router.delete('/post/edit/delete/:postTime', authMiddleware, async (req, res) =>
   }
 );
 
-//댓글 등록 기능
+// 게시글 detail 페이지 댓글 등록
+
+//댓글 작성칸을 누를 때, "로그인이 필요한 기능입니다." 띄우기(완)
+//내용을 비운채 등록을 누른경우 "댓글 내용을 입력해주세요"(완)
+
 router.post('/posts/comments', async(req, res) => {
     console.log(req.body);
+    if (req.body.contents === ""){
+        return res.status(400).send({result: "contentsValueEmpty", errorMsg: "댓글 내용을 입력해 주세요"});
+    }
+
     const { postId, userId, contents, commentTime } = await req.body;
+
     try{
         await Comment.create({ postId, userId, contents, commentTime });
         return res.status(200).send({result: "success", successMsg: "댓글 등록 성공!"});
@@ -119,7 +128,16 @@ router.post('/posts/comments', async(req, res) => {
     }
 })
 
-// 특정 게시물의 전체 댓글 불러오기
+
+
+// 게시글 detail 페이지의 댓글
+//특정 게시물의 전체 댓글 불러오기(완)
+//로그인 하지 않아도 열람 가능(완)
+//현재 조회 중인 게시글에 작성된 모든 댓글 목록으로 보기(완)
+//비로그인상태일때 댓글박스 클릭 >> 알럿 >> 로그인페이지로이동(완)
+//댓글창이 빈상태 >> 등록 버튼 클릭 >> 알럿("내용을 입력해 주세요")
+//내가 작성한 댓글에만 (수정,삭제) 버튼 표시
+
 router.get('/posts/comments', async(req, res) => {
     try{
         const commentsList = await Comment.find({}).sort({ commentTime: -1 });
@@ -130,18 +148,25 @@ router.get('/posts/comments', async(req, res) => {
     }
 })
 
+// 댓글 수정
+//내가 작성한 댓글만 수정 가능하게 하기
+//댓글 본문이 사라짐 > 댓글 내용 + 저장버튼 생성
+//수정버튼을 누르면 값이 없는 채로 이동 못함
+//저장을 누르면 새로입력한 내용으로 바꾸기
+router.patch('/posts/comments', async(req, res) => {
+    return;
+});
 
 
-// 게시글 전체 조회 페이지
-// 로그인 하지 않아도 열람 가능
-// 현재 조회 중인 게시글에 작성된 모든 댓글 목록으로 보기
-// 최신순 정렬
-// 댓글 목록위에 댓글 작성란
-// 내가 작성한 댓글에만 (수정) (삭제) 버튼 생성
+// 댓글 삭제
+//내가 작성한 댓글만 삭제가능
+//confirm("정말로 삭제하시겠습니까?") >> 확인 >> 삭제실행
+// 취소를 누른경우 유지
+router.delete('/posts/comments', async(req, res) => {
+    return;
+});
 
-// 로그인 한 사용자만 댓글 작성 가능
-// 로그인x 가 작성란을 누르면 "로그인이 필요한 기능입니다" 출력
-// 
+
 
 
 

@@ -1,4 +1,9 @@
 function getSelf(callback) {
+  // 로컬스토리지에 토큰이 있다는 것은 로그인을 했다는 증거, 그래서 그 여부에 따라 함수 실행을 결정
+  if (localStorage.getItem('token') === null ){
+    return;
+  }
+
   $.ajax({
     type: 'GET',
     url: '/api/users/me',
