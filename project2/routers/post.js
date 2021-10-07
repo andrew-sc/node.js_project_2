@@ -3,6 +3,7 @@ const router = express.Router();
 
 const Post = require('../schemas/post');
 const allPost = require('../schemas/all_post');
+const Comment = require('../schemas/comment');
 const authMiddleware = require('../middlewares/auth-middleware');
 
 // 요구
@@ -86,10 +87,7 @@ router.put('/post/edit/save', authMiddleware, async (req, res) => {
 
 //     포스트 삭제기능
 // 비밀번호 비교 후 동일할 때만 실행
-router.delete(
-  '/post/edit/delete/:postTime',
-  authMiddleware,
-  async (req, res) => {
+router.delete('/post/edit/delete/:postTime', authMiddleware, async (req, res) => {
     const postTime = req.params.postTime;
     console.log(postTime);
     const inPutPw = req.body.inPutPw;
@@ -104,9 +102,35 @@ router.delete(
     } else {
       res.send({ result: 'fail' });
     }
-    
+
   }
 );
+
+//댓글 등록 기능
+router.post('/posts/comments', async(req, res) => {
+    console.log(req.body);
+    const { postId, userId, contents, commentTime } = await req.body;
+    try{
+        await Comment.create({ postId, userId, contents, commentTime });
+        return res.status(200).send({result: "success", successMsg: "댓글 등록 성공!"});
+    } catch(error) {
+        console.log(error);
+        return res.status(400).send({result: "failure", errorMsg: "알 수 없는 문제가 발생했습니다. 관리자에게 문의하세요."});
+    }
+})
+
+// 특정 게시물의 전체 댓글 불러오기
+router.get('/posts/comments', async(req, res) => {
+    try{
+        const commentsList = await Comment.find({}).sort({ commentTime: -1 });
+        console.log(commentsList);
+        return res.status(200).send({ commentsList });
+    } catch(error) {
+        return res.status(400).send({result: "failure", errorMsg: "알 수 없는 문제가 발생했습니다. 관리자에게 문의하세요."});
+    }
+})
+
+
 
 // 게시글 전체 조회 페이지
 // 로그인 하지 않아도 열람 가능

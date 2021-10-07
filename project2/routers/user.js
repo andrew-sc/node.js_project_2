@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const Users = require('../schemas/user');
+const User = require('../schemas/user');
 const Jwt = require('jsonwebtoken');
 const Joi = require('joi');
 const authMiddleware = require('../middlewares/auth-middleware');
@@ -35,11 +35,11 @@ router.post('/users/signup', async (req, res) => {
     if (pw.match(nickName) === null) {
       // 검사3 : 비밀번호와 비밀번호체크가 완전 동일함
       if (pw === pwCheck) {
-        let isNick = await Users.findOne({ nickName });
+        let isNick = await User.findOne({ nickName });
         console.log(isNick);
 
         if (!isNick) {
-          await Users.create({ nickName: nickName, pw: pw });
+          await User.create({ nickName: nickName, pw: pw });
           return res.status(200).send({
             result: '회원 등록에 성공하셨습니다.',
           });
@@ -78,7 +78,7 @@ router.post('/users/signup/chek', async (req, res) => {
   const nickName = req.body.nickName;
   console.log(nickName);
 
-  let isNick = await Users.findOne({ nickName });
+  let isNick = await User.findOne({ nickName });
   console.log(isNick);
   if (isNick) {
     return res.status(400).send({
@@ -102,7 +102,7 @@ router.post('/auth', async (req, res) => {
   console.log(nickName, pw);
 
   //회원여부확인
-  const isUser = await Users.findOne({ nickName, pw });
+  const isUser = await User.findOne({ nickName, pw });
   console.log(isUser);
 
   if (isUser) {
@@ -110,7 +110,8 @@ router.post('/auth', async (req, res) => {
     console.log('로그인 진행');
 
     //회원정보 암호화
-    const token = Jwt.sign({ nickName: isUser.nickName }, 'project2Key'); //인코딩완료
+    const token = Jwt.sign({ nickName: isUser.nickName }, 'project-Two-Key'); //인코딩완료
+    console.log(nickName);
     return res.status(200).send({
       result: 'success',
       token: token,
@@ -133,7 +134,7 @@ router.post('/auth', async (req, res) => {
 // 미들웨어를 거쳐서 암호화 된 정보를 클라이언트에 넘겨주는 것
 router.get('/users/me', authMiddleware, async (req, res) => { // 로컬스토리지에 있는 값을 미들웨어를 통해 헤드로 넣기 위한 작업
   const { user } = res.locals;
-  console.log(user);
+  // console.log(user);
   res.send({ user });
 });
 

@@ -9,6 +9,7 @@ connect();
 const postRouter = require('./routers/post'); // routes안의 post와 연결시켜주는 것
 const userRouter = require('./routers/user');
 const post = require('./schemas/post');
+const Comment = require('./schemas/comment');
 
 app.set('views', __dirname + '/views'); //ejs형식으로 사용할 view의 위치정보/__dirname은 현재 위치정보
 app.set('view engine', 'ejs'); //views에 있는 ejs들을 가져다 쓸 것을 세팅
@@ -16,7 +17,8 @@ app.set('view engine', 'ejs'); //views에 있는 ejs들을 가져다 쓸 것을 
 // 아래는 미들웨어로써 put,post 등의 기능을 사용할 때 보다 간편하게 쓸수 있게 도와주는 미들웨어
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json()); //json화 해주는 것, res.body라고하면 가공이 되어지게끔 만든다
-app.use(express.static('public')); // static안의 컨텐츠를 사용할 수 있게 하는 미들웨어
+// app.use(express.static('public')); // static안의 컨텐츠를 사용할 수 있게 하는 미들웨어
+app.use("/static", express.static('public'));
 app.use('/api', postRouter);
 app.use('/api', userRouter);
 
@@ -39,8 +41,13 @@ app.get('/post', (req, res) => {
   res.render('newPost');
 });
 
-app.get('/post/detail', (req, res) => {
-  res.render('detail');
+app.get('/post/detail', async (req, res) => {
+  const postTime = req.query.postTime
+
+  const comments =  await Comment.find({ postTime }).sort({ commentTime: -1 });
+  console.log(comments);
+
+  res.render('detail', {comments} );
 });
 
 app.get('/post/edit', (req, res) => {

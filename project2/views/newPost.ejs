@@ -11,7 +11,9 @@
       integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc="
       crossorigin="anonymous"
     ></script>
-    <script src="/api.js"></script>
+    
+    <!-- 공용함수 호출 -->
+    <script src="/static/api.js"></script>
 
     <title>New Post</title>
   </head>
@@ -22,10 +24,10 @@
         window.location.href = '/users/login';
     }
 
-    let user;
-    getSelf(function (userinfo) {
-      user = userinfo;
-      console.log(user);
+    let userInfo;
+    getSelf( function (user) {
+        userInfo = user;
+        console.log(user);
     });
 
     // function checkAuth() {

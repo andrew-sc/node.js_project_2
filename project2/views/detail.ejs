@@ -13,19 +13,19 @@
     ></script>
 
     <!-- 공용함수 호출 -->
-    <script src="/api.js"></script>
-
+    <script src="/static/api.js"></script>
+    
     <title>Post Detail</title>
   </head>
   <script>
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
     const postTime = urlParams.get('postTime');
+    console.log(postTime);
 
-    let user;
-    getSelf(function (userinfo) {
-        user = userinfo;
-        console.log(user);
+    let userInfo;
+    getSelf( function (user) {
+        userInfo = user;
     });
 
     $(document).ready(function () {
@@ -91,16 +91,58 @@
       window.location.href = '/post/edit?postTime=' + postTime;
     }
 
-    function signOut() {
-      localStorage.clear();
-      window.location.href = '/';
+    function commentSave() {
+      let postId = postTime;
+      let userId = userInfo.nickName;
+      let contents = $('#commentTextarea').val();
+      let commentTime = new Date().toString();
+
+
+      $.ajax({
+        type: "POST",
+        url: `/api/posts/comments`,
+        data: { postId, userId, contents, commentTime },
+        success: function (response) {
+          alert(response.successMsg);
+          if (confirm("로딩을 위해 새로고침 하겠습니다.")){
+            window.location.reload();
+          } else {
+            return;
+          }
+        },
+        error: function (error) {
+          return alert(error.responseJSON.errorMsg);
+        }
+      });
     }
+
+    function commentShow() {
+      $('#commentList').empty();
+
+      $.ajax({
+        type: 'GET',
+        url: '/api/posts/comments',
+        data: {},
+        success: function(response) {
+          console.log("성공!");
+          return;
+        },
+        error: function(err) {
+          console.log("에러");
+          return;
+        }
+      });
+    }
+
+
   </script>
   <body>
     <h1>This page is Post Detail page!</h1>
     <button onclick="window.location.href='/users/login'">로 그 인</button>
     <p></p>
     <button onclick="signOut()">로 그 아 웃</button>
+    <p></p>
+    <button onclick="window.location.href='/main'">처 음 으 로</button>
     <p></p>
     <a> --------------------------------------------------- </a>
     <p></p>
@@ -121,6 +163,47 @@
     </div>
     <p></p>
     <button onclick="go_edit()">수 정 하 기</button>
+    <p></p>
+    <p></p>
+    <a> --------------------------------------------------- </a>
+    <p></p>
+
+    <div id="commentArea">
+      <label for="commentTextarea">
+        댓 글
+      </label>
+      <p></p>
+      <textarea
+          id="commentTextarea"
+          style="height: 100px; width: 50%">
+      </textarea>
+      <p></p>
+      <button onclick="commentSave()">댓 글 등 록</button>
+    </div>
+
+    <div id="commentList">
+      <h3>댓글</h3>
+      <p></p>
+      <a> --------------------------------------------------- </a>
+      <% for(let comment of comments) { %>
+      <p></p>
+      <label for="comment_contents">댓글내용:</label>
+      <p></p>
+      <a id="comment_contents"><%= comment.contents %></a>
+      <p style="height: 1px;"></p>
+      <label for="comment_userId">작성자:</label>
+      <p></p>
+      <a id="comment_userId"><%= comment.userId %></a>
+      <p style="height: 1px;"></p>
+      <label for="comment_commentTime">작성 시간:</label>
+      <p></p>
+      <a id="comment_commentTime"><%= comment.commentTime %></a>
+      <p></p>
+      <a> --------------------------------------------------- </a>
+      <p></p>
+      <% } %>
+    </div>
+
     <p></p>
     <button onclick="window.location.href='/main'">처 음 으 로</button>
   </body>
