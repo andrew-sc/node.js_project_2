@@ -4,6 +4,7 @@ const User = require('../schemas/user');
 const Jwt = require('jsonwebtoken');
 const Joi = require('joi');
 const authMiddleware = require('../middlewares/auth-middleware');
+const signUpContorller = require('../controller/signUp');
 
 // 회원가입
 // 닉네임 제약 - 최소3자(확)
@@ -14,66 +15,72 @@ const authMiddleware = require('../middlewares/auth-middleware');
 // db에 있는 닉네임인 경우 "중복된 닉네임입니다."라는 에러메세지를 프론트엔드??에서 보여주기(확)
 // 회원가입 버튼을 누르고 에러메세지가 안뜨면 로그인 페이지로 ㄱㄱ >> 그렇다면 로그인페이지에서 토큰이 있으면 목록페이지로 전달?(확)
 
-const userSchema = Joi.object({
-  nickName: Joi.string()
-    .min(3)
-    .regex(/^[0-9a-z]+$/i)
-    .required(),
-  pw: Joi.string().min(4).required(),
-  pwCheck: Joi.string().min(3).required(),
-});
 
-router.post('/users/signup', async (req, res) => {
-  console.log(req.body);
 
-  //검증시작!
-  try {
-    //검사1 : 글자수, 닉네임 형식
-    const { nickName, pw, pwCheck } = await userSchema.validateAsync(req.body);
-    // console.log(nickName, pw, pwCheck);
+router.post('/users/signup', signUpContorller.signUpValidation);
 
-    //검사2 : 비밀번호에 닉네임 포함되는가?
-    if (pw.match(nickName) !== null) {
-      console.log('비밀번호가 닉네임에 중복값이 있다.');
-      return res.status(400).send({
-        result: 'pwOverlapNickName',
-        errorMessage: '닉네임과 패스워드를 겹치지 않게 설정해 주세요.',
-      });
-    }
 
-    // 검사3 : 비밀번호와 비밀번호체크가 완전 동일한가?
-    if (pw !== pwCheck) {
-      console.log('비밀번호가 일치하지 않는다');
-      return res.status(400).send({
-        result: 'pwCheckNotSamePw',
-        errorMessage: '비밀번호와 비밀번호 확인이 일치하지 않습니다.',
-      });
-    }
+// async (req, res) => {
 
-    // 검사4 : 데이터베이스에 중복 닉네임이 있는가?
-    let isNick = await User.findOne({ nickName });
-    console.log(isNick);
+//   const userSchema = Joi.object({
+//     nickName: Joi.string()
+//       .min(3)
+//       .regex(/^[0-9a-z]+$/i)
+//       .required(),
+//     pw: Joi.string().min(4).required(),
+//     pwCheck: Joi.string().min(3).required(),
+//   });
 
-    if (isNick) {
-      console.log('중복된 닉네임');
-      return res.status(400).send({
-        result: 'nickNameUsed',
-        errorMessage: '중복된 닉네임입니다.',
-      });
-    }
+//   console.log(req.body);
 
-    await User.create({ nickName: nickName, pw: pw });
-    return res.status(200).send({
-      result: '회원 등록에 성공하셨습니다.',
-    });
-  } catch (error) {
-    //console.log(error);
-    return res.status(400).send({
-      result: 'valiationFailed',
-      errorMessage: '옳바른 형식이 아닙니다.',
-    });
-  }
-});
+//   //검증시작!
+//   try {
+//     //검사1 : 글자수, 닉네임 형식
+//     const { nickName, pw, pwCheck } = await userSchema.validateAsync(req.body);
+//     // console.log(nickName, pw, pwCheck);
+
+//     //검사2 : 비밀번호에 닉네임 포함되는가?
+//     if (pw.match(nickName) !== null) {
+//       console.log('비밀번호가 닉네임에 중복값이 있다.');
+//       return res.status(400).send({
+//         result: 'pwOverlapNickName',
+//         errorMessage: '닉네임과 패스워드를 겹치지 않게 설정해 주세요.',
+//       });
+//     }
+
+//     // 검사3 : 비밀번호와 비밀번호체크가 완전 동일한가?
+//     if (pw !== pwCheck) {
+//       console.log('비밀번호가 일치하지 않는다');
+//       return res.status(400).send({
+//         result: 'pwCheckNotSamePw',
+//         errorMessage: '비밀번호와 비밀번호 확인이 일치하지 않습니다.',
+//       });
+//     }
+
+//     // 검사4 : 데이터베이스에 중복 닉네임이 있는가?
+//     let isNick = await User.findOne({ nickName });
+//     console.log(isNick);
+
+//     if (isNick) {
+//       console.log('중복된 닉네임');
+//       return res.status(400).send({
+//         result: 'nickNameUsed',
+//         errorMessage: '중복된 닉네임입니다.',
+//       });
+//     }
+
+//     await User.create({ nickName: nickName, pw: pw });
+//     return res.status(200).send({
+//       result: '회원 등록에 성공하셨습니다.',
+//     });
+//   } catch (error) {
+//     //console.log(error);
+//     return res.status(400).send({
+//       result: 'valiationFailed',
+//       errorMessage: '옳바른 형식이 아닙니다.',
+//     });
+//   }
+// });
 
 // 닉네임 중복검사 api
 router.post('/users/signup/chek', async (req, res) => {

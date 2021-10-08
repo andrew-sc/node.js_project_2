@@ -1,11 +1,13 @@
 const connect = require('../schemas/db');
-const router = require('../routers');
 const User = require('../schemas/user');
+const supertest = require("supertest");
+const server = require('../index');
+const
 
 const userIds = [];
 beforeAll(async () => {
     await connect();
-    const user = await User.create({ username: 'sampleUser', password: '9876' });
+    const user = await User.create({ nickName: 'sampleUser', pw: '9876' });
     userIds.push(user._id);
 });
 
@@ -16,10 +18,10 @@ describe('API테스트의 작동 테스트', () => {
 });
 
 describe('로그인시 조건 만족', () => {
-
+  app = supertest(server);
   // 닉네임 길이
   test('nickname too short', async () => {
-    const res = await router.post('/api/users/signup').send({
+    const res = await app.post('/api/users/signup').send( req.body = {
       nickName: 'test1234',
       pw: '1111',
       pwCheck: '1111',
@@ -29,7 +31,7 @@ describe('로그인시 조건 만족', () => {
   });
 
   test('nickname too short', async () => {
-    const res = await router.post('/api/users/signup').send({
+    const res = await app.post('/api/users/signup').send({
       nickName: 'te',
       pw: '1111',
       pwCheck: '1111',
@@ -41,7 +43,7 @@ describe('로그인시 조건 만족', () => {
 
   // 닉네임 특수문자
   test('nickname can include 0~9 and A~Z and a~z.', async () => {
-    const res = await router.post('/api/users/signup').send({
+    const res = await app.post('/api/users/signup').send({
       nickName: 'Test1',
       pw: '1111',
       pwCheck: '1111',
@@ -51,7 +53,7 @@ describe('로그인시 조건 만족', () => {
   });
 
   test('nickname can include 0~9 and A~Z and a~z.', async () => {
-    const res = await router.post('/api/users/signup').send({
+    const res = await app.post('/api/users/signup').send({
       nickName: 'Test1!',
       pw: '1111',
       pwCheck: '1111',
@@ -61,7 +63,7 @@ describe('로그인시 조건 만족', () => {
   });
 
   test('nickname can include 0~9 and A~Z and a~z.', async () => {
-    const res = await router.post('/api/users/signup').send({
+    const res = await app.post('/api/users/signup').send({
       nickName: 'Test1+',
       pw: '1111',
       pwCheck: '1111',
@@ -73,7 +75,7 @@ describe('로그인시 조건 만족', () => {
 
   //비밀번호 4자이상
   test('password too short', async () => {
-    const res = await router.post('/api/users/signup').send({
+    const res = await app.post('/api/users/signup').send({
       nickName: 'test1234',
       pw: '1111',
       pwCheck: '1111',
@@ -83,7 +85,7 @@ describe('로그인시 조건 만족', () => {
   });
 
   test('password too short', async () => {
-    const res = await router.post('/api/users/signup').send({
+    const res = await app.post('/api/users/signup').send({
       nickName: 'test1234',
       pw: '111',
       pwCheck: '111',
@@ -93,7 +95,7 @@ describe('로그인시 조건 만족', () => {
   });
 
   test('password too short', async () => {
-    const res = await router.post('/api/users/signup').send({
+    const res = await app.post('/api/users/signup').send({
       nickName: 'test1234',
       pw: 'abc',
       pwCheck: 'abc',
@@ -105,7 +107,7 @@ describe('로그인시 조건 만족', () => {
 
   // 비밀번호에 아이디 포함
   test('password includes nickname', async () => {
-    const res = await router.post('/api/users/signup').send({
+    const res = await app.post('/api/users/signup').send({
         nickName: 'test1234',
         pw: '1111',
         pwCheck: '1111',
@@ -115,7 +117,7 @@ describe('로그인시 조건 만족', () => {
   });
 
   test('password includes nickname', async () => {
-    const res = await router.post('/api/users/signup').send({
+    const res = await app.post('/api/users/signup').send({
         nickName: 'test1234',
         pw: 'test1234',
         pwCheck: 'test1234',
@@ -127,7 +129,7 @@ describe('로그인시 조건 만족', () => {
 
   // pw와 pwCheck 동일?
   test('incorrect password and passwordCheck', async () => {
-    const res = await router.post('/api/users/signup').send({
+    const res = await app.post('/api/users/signup').send({
         nickName: 'test1234',
         pw: '1111',
         pwCheck: '1111',
@@ -137,7 +139,7 @@ describe('로그인시 조건 만족', () => {
   });
 
   test('incorrect password and passwordCheck', async () => {
-    const res = await router.post('/api/users/signup').send({
+    const res = await app.post('/api/users/signup').send({
         nickName: 'test1234',
         pw: '1234',
         pwCheck: '5678',
@@ -147,7 +149,7 @@ describe('로그인시 조건 만족', () => {
   });
 
   test('incorrect password and passwordCheck', async () => {
-    const res = await router.post('/api/users/signup').send({
+    const res = await app.post('/api/users/signup').send({
         nickName: 'test1234',
         pw: 'thisisPassword',
         pwCheck: 'thisisPasswrod',
@@ -159,7 +161,7 @@ describe('로그인시 조건 만족', () => {
 
   // 닉네임중복
   test('duplicated username', async () => {
-    const res = await router.post('/api/users/signup').send({
+    const res = await app.post('/api/users/signup').send({
         nickName: 'poiu1234',
         pw: '1111',
         pwCheck: '1111',
@@ -169,7 +171,7 @@ describe('로그인시 조건 만족', () => {
   });
 
   test('duplicated username', async () => {
-    const res = await router.post('/api/users/signup').send({
+    const res = await app.post('/api/users/signup').send({
         nickName: 'sampleUser',
         pw: '1111',
         pwCheck: '1111',
