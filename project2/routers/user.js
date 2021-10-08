@@ -19,53 +19,55 @@ const userSchema = Joi.object({
     .min(3)
     .regex(/^[0-9a-z]+$/i)
     .required(),
-  pw: Joi.string().min(3).required(),
+  pw: Joi.string().min(4).required(),
   pwCheck: Joi.string().min(3).required(),
 });
 
 router.post('/users/signup', async (req, res) => {
   console.log(req.body);
 
+  //검증시작!
   try {
     //검사1 : 글자수, 닉네임 형식
     const { nickName, pw, pwCheck } = await userSchema.validateAsync(req.body);
     // console.log(nickName, pw, pwCheck);
 
-    //검사2 : 비밀번호에 닉네임 포함여부
-    if (pw.match(nickName) === null) {
-      // 검사3 : 비밀번호와 비밀번호체크가 완전 동일함
-      if (pw === pwCheck) {
-        let isNick = await User.findOne({ nickName });
-        console.log(isNick);
-
-        if (!isNick) {
-          await User.create({ nickName: nickName, pw: pw });
-          return res.status(200).send({
-            result: '회원 등록에 성공하셨습니다.',
-          });
-        } else {
-          console.log('중복된 닉네임');
-          return res.status(400).send({
-            result: 'nickNameUsed',
-            errorMessage: '중복된 닉네임입니다.',
-          });
-        }
-      } else {
-        console.log('비밀번호가 일치하지 않는다');
-        return res.status(400).send({
-          result: 'pwCheckNotSamePw',
-          errorMessage: '비밀번호와 비밀번호 확인이 일치하지 않습니다.',
-        });
-      }
-    } else {
+    //검사2 : 비밀번호에 닉네임 포함되는가?
+    if (pw.match(nickName) !== null) {
       console.log('비밀번호가 닉네임에 중복값이 있다.');
       return res.status(400).send({
         result: 'pwOverlapNickName',
-        errorMessage: '옳바른 형식이 아닙니다.',
+        errorMessage: '닉네임과 패스워드를 겹치지 않게 설정해 주세요.',
       });
     }
-  } catch (err) {
-    //console.log(err);
+
+    // 검사3 : 비밀번호와 비밀번호체크가 완전 동일한가?
+    if (pw !== pwCheck) {
+      console.log('비밀번호가 일치하지 않는다');
+      return res.status(400).send({
+        result: 'pwCheckNotSamePw',
+        errorMessage: '비밀번호와 비밀번호 확인이 일치하지 않습니다.',
+      });
+    }
+
+    // 검사4 : 데이터베이스에 중복 닉네임이 있는가?
+    let isNick = await User.findOne({ nickName });
+    console.log(isNick);
+
+    if (isNick) {
+      console.log('중복된 닉네임');
+      return res.status(400).send({
+        result: 'nickNameUsed',
+        errorMessage: '중복된 닉네임입니다.',
+      });
+    }
+
+    await User.create({ nickName: nickName, pw: pw });
+    return res.status(200).send({
+      result: '회원 등록에 성공하셨습니다.',
+    });
+  } catch (error) {
+    //console.log(error);
     return res.status(400).send({
       result: 'valiationFailed',
       errorMessage: '옳바른 형식이 아닙니다.',
@@ -129,7 +131,8 @@ router.post('/auth', async (req, res) => {
 // 회원가입/로그인/게시글목록조회/게시글조회 를 제외한 나머지 페이지는 로그인시에만 허용
 // 로그인을 하지 않거나, 올바르지 않은 경로로 접속한 사용자 > "로그인이 필요합니다" > 로그인페이지로 이동
 // 로그인을 한 사용자가 로그인 or 회원가입 페이지에 접속한 경우 "이미 로그인이 되어있습니다" - 전체 게시글페이지로 이동
-router.get('/users/me', authMiddleware, async (req, res) => { // 로컬스토리지에 있는 값을 미들웨어를 통해 헤드로 넣기 위한 작업
+router.get('/users/me', authMiddleware, async (req, res) => {
+  // 로컬스토리지에 있는 값을 미들웨어를 통해 헤드로 넣기 위한 작업
   const { user } = res.locals;
   // console.log(user);
   res.send({ user });

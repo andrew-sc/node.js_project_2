@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 const Post = require('../schemas/post');
-const allPost = require('../schemas/all_post');
+const allPost = require('../schemas/db');
 const Comment = require('../schemas/comment');
 const authMiddleware = require('../middlewares/auth-middleware');
 

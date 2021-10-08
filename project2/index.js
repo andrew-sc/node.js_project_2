@@ -3,7 +3,7 @@ const app = express();
 const port = 3000;
 const mongoose = require('mongoose');
 
-const connect = require('./schemas/all_post'); //만들어놓은 schemas와 연결
+const connect = require('./schemas/db'); //만들어놓은 schemas와 연결
 connect();
 
 const postRouter = require('./routers/post'); // routes안의 post와 연결시켜주는 것

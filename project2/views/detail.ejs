@@ -250,7 +250,6 @@
       <p></p>
       <a> --------------------------------------------------- </a>
       <% for(let comment of comments) { %>
-        <% if (nowUserId === comment.userId) { %>
         <p></p>
         <label>댓글내용:</label>
         <p></p>
@@ -271,6 +270,7 @@
         <p></p>
         <a style="display: none;" id="comment_id"><%= comment._id %></a>
         <p style="display: none;"></p>
+        <% if (nowUserId === comment.userId) { %>
         <button id="updateBtn" onclick="toggle('contents<%= comment._id %>', 'commnetInputDiv<%= comment._id %>')">수 정</button>
         <p></p>
         <button onclick="commentDelete()">삭 제</button>
@@ -278,26 +278,6 @@
         <a> --------------------------------------------------- </a>
         <p></p>
         <% } else { %>
-          <p></p>
-          <label>댓글내용:</label>
-          <p></p>
-          <a style="display: block;" id="contents<%= comment._id %>"><%= comment.contents %></a>
-          <p></p>
-          <div id='commnetInputDiv<%= comment._id %>' style="display: none;">
-            <input id="comment_input<%= comment._id %>" style="height: 20px; width: 30%;" value="<%= comment.contents %>">
-            <button id="comment_inputBtn" style="height: 19pt;" onclick="commentUpdate('<%= comment._id %>')" >저 장</button>
-          </div>
-          <p style="height: 1px;"></p>
-          <label>작성자:</label>
-          <p></p>
-          <a id="comment_userId"><%= comment.userId %></a>
-          <p style="height: 1px;"></p>
-          <label>작성 시간:</label>
-          <p></p>
-          <a id="comment_commentTime"><%= comment.commentTime %></a>
-          <p></p>
-          <a style="display: none;" id="comment_id"><%= comment._id %></a>
-          <p style="display: none;"></p>
           <p></p>
           <a> --------------------------------------------------- </a>
           <p></p>
