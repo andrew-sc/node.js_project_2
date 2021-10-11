@@ -100,6 +100,7 @@ router.delete(
 
     if (inPutPw === pwOrigin.pw) {
       await Post.deleteOne({ postTime });
+      // await Comment.deleteOne({ postId: postTime });
       console.log('삭제 완료');
       res.send({ result: 'success' });
     } else {

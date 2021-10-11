@@ -53,9 +53,9 @@ const signUpContorller = {
       }
 
       await User.create({ nickName: nickName, pw: pw });
-      return res.status(200).send({
-        result: '회원 등록에 성공하셨습니다.',
-      });
+      res.status(200);
+      res.send({ result: '회원 등록에 성공하셨습니다.' });
+      return;
     } catch (error) {
       //console.log(error);
       return res.status(400).send({
@@ -67,57 +67,84 @@ const signUpContorller = {
 };
 
 module.exports = signUpContorller;
-module.exports = functions;
 
+// const signUpContorllerFunctions = {
+//   joiValidation: async (nickName, pw, pwCheck) => {
+//     try {
+//       const userSchema = Joi.object({
+//         nickName: Joi.string()
+//           .min(3)
+//           .regex(/^[0-9a-z]+$/i)
+//           .required(),
+//         pw: Joi.string().min(4).required(),
+//         pwCheck: Joi.string().min(3).required(),
+//       });
 
+//       const { nickName, pw, pwCheck } = await userSchema.validateAsync({
+//         nickName,
+//         pw,
+//         pwCheck,
+//       });
 
-const functions = {
-  joiValidation: async (nickName, pw, pwCheck) => {
-    try {
-      const userSchema = Joi.object({
-        nickName: Joi.string()
-          .min(3)
-          .regex(/^[0-9a-z]+$/i)
-          .required(),
-        pw: Joi.string().min(4).required(),
-        pwCheck: Joi.string().min(3).required(),
-      });
+//       let makeUser = await User.create({ nickName: nickName, pw: pw });
 
-      const { nickName, pw, pwCheck } = await userSchema.validateAsync({
-        nickName,
-        pw,
-        pwCheck,
-      });
-      return true;
-    } catch {
-      return false;
-    }
-  },
+//       res.status(200);
+//       res.send({ result: '회원 등록에 성공하셨습니다.' });
+//       return true;
+//     } catch (error) {
+//       res.status(400);
+//       res.send({
+//         result: 'valiationFailed',
+//         errorMessage: '옳바른 형식이 아닙니다.',
+//       });
+//       return false;
+//     }
+//   },
 
-  pwIncludeNickNameValidation: function(nickName, pw, pwcheck) {
-    if (pw.match(nickName) !== null) {
-      return true;
-    } else {
-      return false;
-    }
-  },
+//   pwIncludeNickNameValidation: function (nickName, pw, pwCheck) {
+//     if (pw.match(nickName) !== null) {
+//       return true;
+//     } else {
+//       console.log('비밀번호가 닉네임에 중복값이 있다.');
+//       res.status(400);
+//       res.send({
+//         result: 'pwOverlapNickName',
+//         errorMessage: '닉네임과 패스워드를 겹치지 않게 설정해 주세요.',
+//       });
+//       return false;
+//     }
+//   },
 
+//   correctPwAndPwCheck: function (nickName, pw, pwCheck) {
+//     if (pw === pwCheck) {
+//       return true;
+//     } else {
+//       console.log('비밀번호가 일치하지 않는다');
+//       res.status(400).send({
+//         result: 'pwCheckNotSamePw',
+//         errorMessage: '비밀번호와 비밀번호 확인이 일치하지 않습니다.',
+//       });
+//       return false;
+//     }
+//   },
 
-  correctPwAndPwCheck: function(pw, pwCheck) {
-    if (pw !== pwCheck) {
-      return true,
-    } else {
-      return false,
-    }
-  },
+//   duqlatedNickName: async (nickName, pw, pwCheck) => {
+//     let isNick = await User.findOne({ nickName });
 
-  duqlatedNickName: async (nickName, pw, pwCheck) => {
-    let isNick = await User.findOne({ nickName });
+//     if (!isNick) {
+//       return true;
+//     } else {
+//       console.log('중복된 닉네임');
+//       res.status(400).send({
+//         result: 'nickNameUsed',
+//         errorMessage: '중복된 닉네임입니다.',
+//       });
+//       return false;
+//     }
+//   },
+// };
 
-      if (!isNick) {
-        return true;
-        } else {
-          return false;
-        }
-  }
-};
+// module.exports = signUpContorllerFunctions;
+
+// console.log(signUpContorller);
+// console.log(signUpContorllerFunctions);
